@@ -6,6 +6,8 @@ import { getProducts, type Product } from "../services/products/productsSlice";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 
 import {
   Button,
@@ -18,6 +20,7 @@ import { Link } from "react-router-dom";
 
 const ProductList: React.FC = () => {
   const [searchText, setSearchText] = useState<string>("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState<string>("");
   const [sortedText, setSortedText] = useState<string>("");
   const [filteredText, setFilteredText] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
@@ -27,12 +30,19 @@ const ProductList: React.FC = () => {
     dispatch(getProducts());
   }, [dispatch]);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchText]);
+
   // Filter products by search text
   const searchedProducts = data.filter((product: Product) =>
-    product.title.toLowerCase().includes(searchText.toLowerCase())
+    product.title.toLowerCase().includes(debouncedSearchText.toLowerCase())
   );
 
-  const sortedProducts = [...searchedProducts].sort((a, b) => {
+  const sortedProducts = [...data].sort((a, b) => {
     if (sortedText === "asc") {
       return a.price - b.price;
     } else if (sortedText === "desc") {
@@ -45,10 +55,10 @@ const ProductList: React.FC = () => {
       return 0;
     }
 
-    return 0; // No sorting applied
+    return 0;
   });
 
-  const filteredProducts = sortedProducts.filter((product: Product) => {
+  const filteredProducts = data.filter((product: Product) => {
     if (filteredText === "electronics") {
       return product.category === "electronics";
     } else if (filteredText === "jewelery") {
@@ -58,7 +68,7 @@ const ProductList: React.FC = () => {
     } else if (filteredText === "women's clothing") {
       return product.category === "women's clothing";
     } else if (filteredText === "clear") {
-      return true; // Show all products when filter is cleared
+      return true;
     }
   });
   const displayProducts = sortedText
@@ -127,6 +137,29 @@ const ProductList: React.FC = () => {
                   >
                     ${product.price.toFixed(2)}
                   </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                    {Array.from({ length: 5 }).map((_, i) =>
+                      i < Math.round(product.rating?.rate ?? 0) ? (
+                        <StarIcon
+                          key={i}
+                          sx={{ color: "#FFD700", fontSize: 20 }}
+                        />
+                      ) : (
+                        <StarBorderIcon
+                          key={i}
+                          sx={{ color: "#FFD700", fontSize: 20 }}
+                        />
+                      )
+                    )}
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ ml: 1 }}
+                    >
+                      {product.rating?.rate ?? ""} ({product.rating?.count ?? 0}{" "}
+                      reviews)
+                    </Typography>
+                  </Box>
                 </CardContent>
                 <CardActions>
                   <Button
