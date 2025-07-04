@@ -24,6 +24,9 @@ const ProductList: React.FC = () => {
   const [sortedText, setSortedText] = useState<string>("");
   const [filteredText, setFilteredText] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
+  const [productCounts, setProductCounts] = useState<{ [id: number]: number }>(
+    {}
+  );
   const { data } = useSelector((state: RootState) => state.products);
 
   useEffect(() => {
@@ -77,6 +80,11 @@ const ProductList: React.FC = () => {
     ? filteredProducts
     : searchedProducts;
 
+  // Utility function to sum all product counts
+  const getTotalProductCount = () => {
+    return Object.values(productCounts).reduce((sum, count) => sum + count, 0);
+  };
+
   return (
     <>
       <ProductHeader
@@ -84,21 +92,20 @@ const ProductList: React.FC = () => {
         setSearchText={setSearchText}
         setSortedText={setSortedText}
         setFilteredText={setFilteredText}
+        getTotalProductCount={getTotalProductCount}
       />
-      <Box sx={{ p: 4 }}>
-        <Typography variant="h4" gutterBottom align="center">
-          Products
-        </Typography>
+      <Box sx={{ p: 4 }} className="bg-gray-100 min-h-screen">
         <Grid container spacing={4} justifyContent="center">
           {displayProducts.map((product) => (
             <Grid key={product.id} sx={{ display: "flex" }}>
               <Card
                 sx={{
-                  width: "100%",
+                  width: 300,
+                  minHeight: 400,
                   display: "flex",
                   flexDirection: "column",
                   boxShadow: 3,
-                  height: 400,
+                  justifyContent: "space-between",
                 }}
               >
                 <CardMedia
@@ -161,13 +168,55 @@ const ProductList: React.FC = () => {
                     </Typography>
                   </Box>
                 </CardContent>
-                <CardActions>
+                <CardActions
+                  className="flex flex-row items-center justify-between w-full gap-2"
+                  style={{ justifyContent: "space-between" }}
+                >
+                  <div
+                    className="flex flex-row items-center gap-2"
+                    style={{ display: "flex" }}
+                  >
+                    <Button
+                      size="small"
+                      variant="contained"
+                      className="min-w-[36px]"
+                      sx={{ minWidth: 36 }}
+                      onClick={() =>
+                        setProductCounts((prev) => ({
+                          ...prev,
+                          [product.id]: Math.max(
+                            (prev[product.id] || 0) - 1,
+                            0
+                          ),
+                        }))
+                      }
+                    >
+                      -
+                    </Button>
+                    <Typography className="mx-2" style={{ padding: "4px " }}>
+                      {productCounts[product.id] || 0}
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      className="min-w-[36px]"
+                      sx={{ minWidth: 36 }}
+                      onClick={() =>
+                        setProductCounts((prev) => ({
+                          ...prev,
+                          [product.id]: (prev[product.id] || 0) + 1,
+                        }))
+                      }
+                    >
+                      +
+                    </Button>
+                  </div>
                   <Button
                     component={Link}
                     to={`/product/${product.id}`}
                     size="small"
                     variant="contained"
-                    sx={{ ml: "auto" }}
+                    className="ml-auto"
                   >
                     View Details
                   </Button>

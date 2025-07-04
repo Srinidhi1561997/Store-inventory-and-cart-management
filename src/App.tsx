@@ -1,7 +1,6 @@
 import Login from "./screens/Login";
 import ProductList from "./screens/ProductList";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import React from "react";
 import Cart from "./screens/Cart";
 import Profile from "./screens/Profile";
 import OrderHistory from "./screens/OrderHistory";

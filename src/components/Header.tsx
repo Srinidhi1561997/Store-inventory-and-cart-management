@@ -12,7 +12,13 @@ import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled, alpha } from "@mui/material/styles";
 import SortIcon from "@mui/icons-material/Sort";
-import { FilterAltOffOutlined, FilterAltOutlined } from "@mui/icons-material";
+import {
+  FilterAltOffOutlined,
+  FilterAltOutlined,
+  ShoppingCart,
+  ShoppingCartOutlined,
+} from "@mui/icons-material";
+import Badge from "@mui/material/Badge";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -55,6 +61,7 @@ interface ProductHeaderProps {
   setSearchText: (text: string) => void;
   setSortedText: (text: string) => void;
   setFilteredText: (text: string) => void;
+  getTotalProductCount: () => number;
 }
 
 const ProductHeader: React.FC<ProductHeaderProps> = (props) => {
@@ -63,7 +70,13 @@ const ProductHeader: React.FC<ProductHeaderProps> = (props) => {
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(
     null
   );
-  const { searchText, setSearchText, setSortedText, setFilteredText } = props;
+  const {
+    searchText,
+    setSearchText,
+    setSortedText,
+    setFilteredText,
+    getTotalProductCount,
+  } = props;
   const open = Boolean(anchorEl);
   const isSortopen = Boolean(sortAnchorEl);
   const isFilteropen = Boolean(filterAnchorEl);
@@ -129,6 +142,26 @@ const ProductHeader: React.FC<ProductHeaderProps> = (props) => {
             />
           </Search>
           <IconButton
+            component={Link}
+            edge="end"
+            color="inherit"
+            aria-label="sort"
+            to="/cart"
+          >
+            <Badge
+              badgeContent={
+                getTotalProductCount() > 0 ? getTotalProductCount() : null
+              }
+              color="error"
+            >
+              {getTotalProductCount() > 0 ? (
+                <ShoppingCart />
+              ) : (
+                <ShoppingCartOutlined />
+              )}
+            </Badge>
+          </IconButton>
+          <IconButton
             onClick={handleSortMenu}
             edge="end"
             color="inherit"
@@ -163,8 +196,36 @@ const ProductHeader: React.FC<ProductHeaderProps> = (props) => {
           anchorOrigin={{ vertical: "top", horizontal: "left" }}
           transformOrigin={{ vertical: "top", horizontal: "left" }}
         >
-          <MenuItem component={Link} to="/cart" onClick={handleClose}>
-            Cart
+          <MenuItem
+            component={Link}
+            to="/cart"
+            onClick={handleClose}
+            sx={{ position: "relative", pr: 4 }}
+          >
+            <Box
+              sx={{
+                position: "relative",
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              Cart
+              {getTotalProductCount() > 0 && (
+                <Badge
+                  badgeContent={getTotalProductCount()}
+                  color="error"
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    right: -32,
+                    transform: "translateY(-50%)",
+                    zIndex: 2,
+                    pointerEvents: "none",
+                  }}
+                  overlap="circular"
+                />
+              )}
+            </Box>
           </MenuItem>
           <MenuItem component={Link} to="/profile" onClick={handleClose}>
             Profile
