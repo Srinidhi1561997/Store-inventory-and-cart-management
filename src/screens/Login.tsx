@@ -1,10 +1,11 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { createUseStyles } from "react-jss";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setLoginStatus } from "../services/login/login";
 const loginData = [
   {
     userName: "user1",
@@ -85,8 +86,24 @@ const Login = () => {
   const classes = useStyles();
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const toggleVisibility = () => setShowPassword((prev) => !prev);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      // Block or redirect back navigation
+      navigate(location.pathname, { replace: true }); // stays on current page
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [navigate, location]);
 
   const formik = useFormik({
     initialValues: {
@@ -110,6 +127,7 @@ const Login = () => {
       );
       if (user) {
         navigate("/products");
+        dispatch(setLoginStatus(true));
       } else {
         formik.setFieldError("password", "Invalid username or password");
       }
@@ -188,4 +206,5 @@ const Login = () => {
     </div>
   );
 };
+
 export default Login;

@@ -5,6 +5,7 @@ import Cart from "./screens/Cart";
 import Profile from "./screens/Profile";
 import OrderHistory from "./screens/OrderHistory";
 import NotFound from "./components/NotFound";
+import ProductDetails from "./screens/ProductDetails";
 function AppRoutes() {
   return (
     <>
@@ -15,6 +16,7 @@ function AppRoutes() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/orders" element={<OrderHistory />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/productDetails/:id" element={<ProductDetails />} />
       </Routes>
     </>
   );

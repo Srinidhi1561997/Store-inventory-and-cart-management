@@ -17,16 +17,21 @@ import {
   Typography,
 } from "@mui/material";
 import { Link } from "react-router-dom";
+import {
+  setHomeScreen,
+  setProductCountInCart,
+} from "../services/headerActions/headerActionsSlice";
 
 const ProductList: React.FC = () => {
-  const [searchText, setSearchText] = useState<string>("");
   const [debouncedSearchText, setDebouncedSearchText] = useState<string>("");
-  const [sortedText, setSortedText] = useState<string>("");
-  const [filteredText, setFilteredText] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
   const [productCounts, setProductCounts] = useState<{ [id: number]: number }>(
     {}
   );
+  const { searchText, sortedText, filteredText } = useSelector(
+    (state: RootState) => state.headerActions
+  );
+
   const { data } = useSelector((state: RootState) => state.products);
 
   useEffect(() => {
@@ -54,7 +59,7 @@ const ProductList: React.FC = () => {
       return b.rating.rate - a.rating.rate;
     } else if (sortedText === "title") {
       return a.title.localeCompare(b.title);
-    } else if (sortedText === "Clear") {
+    } else if (sortedText === "Clear" || sortedText === "") {
       return 0;
     }
 
@@ -70,7 +75,7 @@ const ProductList: React.FC = () => {
       return product.category === "men's clothing";
     } else if (filteredText === "women's clothing") {
       return product.category === "women's clothing";
-    } else if (filteredText === "clear") {
+    } else if (filteredText === "clear" || filteredText === "") {
       return true;
     }
   });
@@ -80,20 +85,25 @@ const ProductList: React.FC = () => {
     ? filteredProducts
     : searchedProducts;
 
-  // Utility function to sum all product counts
-  const getTotalProductCount = () => {
-    return Object.values(productCounts).reduce((sum, count) => sum + count, 0);
-  };
+  useEffect(() => {
+    // Utility function to sum all product counts
+    const total = Object.values(productCounts).reduce(
+      (sum, count) => sum + count,
+      0
+    );
+    dispatch(setProductCountInCart(total));
+  }, [productCounts]);
 
+  console.log(
+    "Product Counts:",
+    productCounts,
+    filteredText,
+    sortedText,
+    searchText
+  );
   return (
     <>
-      <ProductHeader
-        searchText={searchText}
-        setSearchText={setSearchText}
-        setSortedText={setSortedText}
-        setFilteredText={setFilteredText}
-        getTotalProductCount={getTotalProductCount}
-      />
+      <ProductHeader />
       <Box sx={{ p: 4 }} className="bg-gray-100 min-h-screen">
         <Grid container spacing={4} justifyContent="center">
           {displayProducts.map((product) => (
@@ -213,10 +223,13 @@ const ProductList: React.FC = () => {
                   </div>
                   <Button
                     component={Link}
-                    to={`/product/${product.id}`}
+                    to={`/productDetails/${product.id}`}
                     size="small"
                     variant="contained"
                     className="ml-auto"
+                    onClick={() => {
+                      dispatch(setHomeScreen(false));
+                    }}
                   >
                     View Details
                   </Button>

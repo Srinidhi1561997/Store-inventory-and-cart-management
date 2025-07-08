@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
@@ -7,11 +7,12 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled, alpha } from "@mui/material/styles";
 import SortIcon from "@mui/icons-material/Sort";
+import HomeIcon from "@mui/icons-material/Home";
 import {
   FilterAltOffOutlined,
   FilterAltOutlined,
@@ -19,6 +20,15 @@ import {
   ShoppingCartOutlined,
 } from "@mui/icons-material";
 import Badge from "@mui/material/Badge";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "../store";
+import {
+  setFilteredText,
+  setHomeScreen,
+  setSearchText,
+  setSortedText,
+} from "../services/headerActions/headerActionsSlice";
+import { setLoginStatus } from "../services/login/login";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -56,30 +66,30 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-interface ProductHeaderProps {
-  searchText: string;
-  setSearchText: (text: string) => void;
-  setSortedText: (text: string) => void;
-  setFilteredText: (text: string) => void;
-  getTotalProductCount: () => number;
-}
-
-const ProductHeader: React.FC<ProductHeaderProps> = (props) => {
+const ProductHeader: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(
     null
   );
-  const {
-    searchText,
-    setSearchText,
-    setSortedText,
-    setFilteredText,
-    getTotalProductCount,
-  } = props;
   const open = Boolean(anchorEl);
   const isSortopen = Boolean(sortAnchorEl);
   const isFilteropen = Boolean(filterAnchorEl);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { searchText, productCountsInCart, isHomescreen } = useSelector(
+    (state: RootState) => state.headerActions
+  );
+  const isLoggedIn = useSelector((state: RootState) => state);
+
+  useEffect(() => {
+    // If not logged in and not on login page, redirect to login
+    if (!isLoggedIn && location.pathname !== "/login") {
+      navigate("/login", { replace: true });
+    }
+  }, [isLoggedIn, location.pathname, navigate]);
+
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     console.log("menu menu clicked", event.currentTarget);
     setAnchorEl(event.currentTarget);
@@ -93,14 +103,14 @@ const ProductHeader: React.FC<ProductHeaderProps> = (props) => {
   };
 
   const handleSortClose = (value: string) => {
-    setSortedText(value);
+    dispatch(setSortedText(value));
     setSortAnchorEl(null);
   };
   const handleFilterMenu = (event: React.MouseEvent<HTMLElement>) => {
     setFilterAnchorEl(event.currentTarget);
   };
   const handleFilterClose = (value: string) => {
-    setFilteredText(value);
+    dispatch(setFilteredText(value));
     setFilterAnchorEl(null);
   };
   return (
@@ -130,61 +140,83 @@ const ProductHeader: React.FC<ProductHeaderProps> = (props) => {
           </Typography>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ "aria-label": "search" }}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-            />
-          </Search>
-          <IconButton
-            component={Link}
-            edge="end"
-            color="inherit"
-            aria-label="sort"
-            to="/cart"
-          >
-            <Badge
-              badgeContent={
-                getTotalProductCount() > 0 ? getTotalProductCount() : null
-              }
-              color="error"
+          {isHomescreen ? (
+            <>
+              <Search>
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder="Search…"
+                  inputProps={{ "aria-label": "search" }}
+                  value={searchText}
+                  onChange={(e) => dispatch(setSearchText(e.target.value))}
+                />
+              </Search>
+              <IconButton
+                component={Link}
+                edge="end"
+                color="inherit"
+                aria-label="sort"
+                to="/cart"
+              >
+                <Badge
+                  badgeContent={
+                    productCountsInCart > 0 ? productCountsInCart : null
+                  }
+                  color="error"
+                >
+                  {productCountsInCart > 0 ? (
+                    <ShoppingCart />
+                  ) : (
+                    <ShoppingCartOutlined />
+                  )}
+                </Badge>
+              </IconButton>
+              <IconButton
+                onClick={handleSortMenu}
+                edge="end"
+                color="inherit"
+                aria-label="sort"
+                sx={{
+                  transform: isSortopen ? "rotate(0deg)" : "rotate(180deg)",
+                  transition: "transform 0.3s",
+                }}
+              >
+                <SortIcon />
+              </IconButton>
+              <IconButton
+                onClick={handleFilterMenu}
+                edge="end"
+                color="inherit"
+                aria-label="sort"
+              >
+                {isFilteropen ? (
+                  <FilterAltOffOutlined />
+                ) : (
+                  <FilterAltOutlined />
+                )}
+              </IconButton>
+            </>
+          ) : (
+            <IconButton
+              component={Link}
+              edge="end"
+              color="inherit"
+              aria-label="sort"
+              to="/products"
+              onClick={() => dispatch(setHomeScreen(true))}
             >
-              {getTotalProductCount() > 0 ? (
-                <ShoppingCart />
-              ) : (
-                <ShoppingCartOutlined />
-              )}
-            </Badge>
-          </IconButton>
-          <IconButton
-            onClick={handleSortMenu}
-            edge="end"
-            color="inherit"
-            aria-label="sort"
-            sx={{
-              transform: isSortopen ? "rotate(0deg)" : "rotate(180deg)",
-              transition: "transform 0.3s",
-            }}
-          >
-            <SortIcon />
-          </IconButton>
-
-          <IconButton
-            onClick={handleFilterMenu}
-            edge="end"
-            color="inherit"
-            aria-label="sort"
-          >
-            {isFilteropen ? <FilterAltOffOutlined /> : <FilterAltOutlined />}
-          </IconButton>
+              <HomeIcon />
+            </IconButton>
+          )}
           <Link
             to="/login"
             style={{ textDecoration: "none", color: "white", marginLeft: 16 }}
+            onClick={() => {
+              dispatch(setLoginStatus(false));
+              dispatch(setHomeScreen(false));
+            }}
           >
             SignOut
           </Link>
@@ -210,9 +242,9 @@ const ProductHeader: React.FC<ProductHeaderProps> = (props) => {
               }}
             >
               Cart
-              {getTotalProductCount() > 0 && (
+              {productCountsInCart > 0 && (
                 <Badge
-                  badgeContent={getTotalProductCount()}
+                  badgeContent={productCountsInCart}
                   color="error"
                   sx={{
                     position: "absolute",
@@ -233,6 +265,18 @@ const ProductHeader: React.FC<ProductHeaderProps> = (props) => {
           <MenuItem component={Link} to="/orders" onClick={handleClose}>
             Order History
           </MenuItem>
+          {!isHomescreen && (
+            <MenuItem
+              component={Link}
+              to="/products"
+              onClick={() => {
+                handleClose();
+                dispatch(setHomeScreen(true));
+              }}
+            >
+              Products
+            </MenuItem>
+          )}
         </Menu>
         <Menu
           id="sort-menu"
