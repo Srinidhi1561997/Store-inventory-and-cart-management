@@ -28,7 +28,7 @@ import {
   setSearchText,
   setSortedText,
 } from "../services/headerActions/headerActionsSlice";
-import { setLoginStatus } from "../services/login/login";
+import { setLoginStatus } from "../services/login/loginSlice";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -81,10 +81,9 @@ const ProductHeader: React.FC = () => {
   const { searchText, productCountsInCart, isHomescreen } = useSelector(
     (state: RootState) => state.headerActions
   );
-  const isLoggedIn = useSelector((state: RootState) => state);
+  const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn);
 
   useEffect(() => {
-    // If not logged in and not on login page, redirect to login
     if (!isLoggedIn && location.pathname !== "/login") {
       navigate("/login", { replace: true });
     }

@@ -1,16 +1,22 @@
 import Login from "./screens/Login";
 import ProductList from "./screens/ProductList";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Cart from "./screens/Cart";
 import Profile from "./screens/Profile";
 import OrderHistory from "./screens/OrderHistory";
 import NotFound from "./components/NotFound";
 import ProductDetails from "./screens/ProductDetails";
+import { useSelector } from "react-redux";
+import { type RootState } from "./store";
 function AppRoutes() {
+  const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn);
   return (
     <>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route
+          path="/login"
+          element={isLoggedIn ? <Navigate to="/products" replace /> : <Login />}
+        />
         <Route path="/products" element={<ProductList />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/profile" element={<Profile />} />

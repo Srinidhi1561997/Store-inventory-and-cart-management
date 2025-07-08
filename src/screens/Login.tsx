@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { createUseStyles } from "react-jss";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setLoginStatus } from "../services/login/login";
+import { setLoginStatus } from "../services/login/loginSlice";
 const loginData = [
   {
     userName: "user1",
@@ -89,21 +89,6 @@ const Login = () => {
   const dispatch = useDispatch();
 
   const toggleVisibility = () => setShowPassword((prev) => !prev);
-
-  const location = useLocation();
-
-  useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
-      // Block or redirect back navigation
-      navigate(location.pathname, { replace: true }); // stays on current page
-    };
-
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [navigate, location]);
 
   const formik = useFormik({
     initialValues: {

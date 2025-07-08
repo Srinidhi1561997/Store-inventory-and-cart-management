@@ -1,10 +1,10 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-interface HeaderActionstate {
+interface LoginActionstate {
   isLoggedIn: boolean;
 }
 
-const initialState: HeaderActionstate = {
+const initialState: LoginActionstate = {
   isLoggedIn: false,
 };
 const loginSlice = createSlice({
