@@ -1,11 +1,11 @@
-import Login from "./screens/Login";
-import ProductList from "./screens/ProductList";
+import Login from "./pages/Login";
+import ProductList from "./pages/ProductList";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Cart from "./screens/Cart";
-import Profile from "./screens/Profile";
-import OrderHistory from "./screens/OrderHistory";
+import Cart from "./pages/Cart";
+import Profile from "./pages/Profile";
+import OrderHistory from "./pages/OrderHistory";
 import NotFound from "./components/NotFound";
-import ProductDetails from "./screens/ProductDetails";
+import ProductDetails from "./pages/ProductDetails";
 import { useSelector } from "react-redux";
 import { type RootState } from "./store";
 function AppRoutes() {

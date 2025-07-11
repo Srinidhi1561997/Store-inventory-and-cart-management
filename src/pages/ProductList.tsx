@@ -92,7 +92,14 @@ const ProductList: React.FC = () => {
       0
     );
     dispatch(setProductCountInCart(total));
-  }, [productCounts]);
+  }, [productCounts, dispatch]);
+
+  useEffect(() => {
+    dispatch(setHomeScreen(true));
+    return () => {
+      dispatch(setHomeScreen(false));
+    };
+  }, [dispatch]);
 
   console.log(
     "Product Counts:",

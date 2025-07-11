@@ -5,7 +5,7 @@ interface LoginActionstate {
 }
 
 const initialState: LoginActionstate = {
-  isLoggedIn: false,
+  isLoggedIn: localStorage.getItem("isLoggedIn") === "true",
 };
 const loginSlice = createSlice({
   name: "login",
@@ -13,6 +13,7 @@ const loginSlice = createSlice({
   reducers: {
     setLoginStatus(state, action: PayloadAction<boolean>) {
       state.isLoggedIn = action.payload;
+      localStorage.setItem("isLoggedIn", String(action.payload));
     },
   },
 });

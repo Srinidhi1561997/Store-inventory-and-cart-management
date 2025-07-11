@@ -112,8 +112,15 @@ const ProductHeader: React.FC = () => {
     dispatch(setFilteredText(value));
     setFilterAnchorEl(null);
   };
+
+  const handleLogout = () => {
+    dispatch(setLoginStatus(false));
+    dispatch(setHomeScreen(false));
+    localStorage.removeItem("isLoggedIn");
+  };
+
   return (
-    <AppBar position="static" sx={{ background: "#1976d2" }}>
+    <AppBar position="sticky" sx={{ background: "#1976d2", zIndex: 1201 }}>
       <Toolbar sx={{ minHeight: 64 }}>
         <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
           <IconButton
@@ -212,10 +219,7 @@ const ProductHeader: React.FC = () => {
           <Link
             to="/login"
             style={{ textDecoration: "none", color: "white", marginLeft: 16 }}
-            onClick={() => {
-              dispatch(setLoginStatus(false));
-              dispatch(setHomeScreen(false));
-            }}
+            onClick={handleLogout}
           >
             SignOut
           </Link>

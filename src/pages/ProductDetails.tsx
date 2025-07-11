@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
-import { getProducts, type Product } from "../services/products/productsSlice";
+import { getProductById } from "../services/products/productsSlice";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -14,17 +14,17 @@ import ProductHeader from "../components/Header";
 const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
-  const { data, loading, error } = useSelector(
+  const { loading, error, selectedProduct } = useSelector(
     (state: RootState) => state.products
   );
 
   useEffect(() => {
-    if (!data.length) {
-      dispatch(getProducts());
+    if (!selectedProduct) {
+      dispatch(getProductById(Number(id)));
     }
-  }, [dispatch, data.length]);
+  }, [dispatch, selectedProduct, id]);
 
-  const product: Product | undefined = data.find((p) => p.id === Number(id));
+  // const product: Product | undefined = data.find((p) => p.id === Number(id));
 
   if (loading)
     return (
@@ -33,7 +33,7 @@ const ProductDetails: React.FC = () => {
       </Box>
     );
   if (error) return <Typography color="error">{error}</Typography>;
-  if (!product)
+  if (!selectedProduct)
     return <Typography color="error">Product not found.</Typography>;
 
   return (
@@ -43,26 +43,26 @@ const ProductDetails: React.FC = () => {
         <Card>
           <CardMedia
             component="img"
-            image={product.image}
-            alt={product.title}
+            image={selectedProduct.image}
+            alt={selectedProduct.title}
             sx={{ objectFit: "contain", height: 300, background: "#f9f9f9" }}
           />
           <CardContent>
             <Typography variant="h5" fontWeight={700} gutterBottom>
-              {product.title}
+              {selectedProduct.title}
             </Typography>
             <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-              {product.category}
+              {selectedProduct.category}
             </Typography>
             <Typography variant="body1" sx={{ mb: 2 }}>
-              {product.description}
+              {selectedProduct.description}
             </Typography>
             <Typography variant="h6" color="primary" fontWeight={700}>
-              ${product.price.toFixed(2)}
+              ${selectedProduct.price.toFixed(2)}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Rating: {product.rating?.rate ?? "N/A"} (
-              {product.rating?.count ?? 0} reviews)
+              Rating: {selectedProduct.rating?.rate ?? "N/A"} (
+              {selectedProduct.rating?.count ?? 0} reviews)
             </Typography>
           </CardContent>
         </Card>
