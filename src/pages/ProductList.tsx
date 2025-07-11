@@ -21,6 +21,7 @@ import {
   setHomeScreen,
   setProductCountInCart,
 } from "../services/headerActions/headerActionsSlice";
+import { useCart } from "../context/CartContext";
 
 const ProductList: React.FC = () => {
   const [debouncedSearchText, setDebouncedSearchText] = useState<string>("");
@@ -33,6 +34,7 @@ const ProductList: React.FC = () => {
   );
 
   const { data } = useSelector((state: RootState) => state.products);
+  const { addToCart, cart, removeFromCart } = useCart();
 
   useEffect(() => {
     dispatch(getProducts());
@@ -86,13 +88,12 @@ const ProductList: React.FC = () => {
     : searchedProducts;
 
   useEffect(() => {
-    // Utility function to sum all product counts
-    const total = Object.values(productCounts).reduce(
-      (sum, count) => sum + count,
+    const total = Object.values(cart).reduce(
+      (sum, item) => sum + item.quantity,
       0
     );
     dispatch(setProductCountInCart(total));
-  }, [productCounts, dispatch]);
+  }, [cart, dispatch]);
 
   useEffect(() => {
     dispatch(setHomeScreen(true));
@@ -218,12 +219,13 @@ const ProductList: React.FC = () => {
                       variant="contained"
                       className="min-w-[36px]"
                       sx={{ minWidth: 36 }}
-                      onClick={() =>
+                      onClick={() => {
                         setProductCounts((prev) => ({
                           ...prev,
                           [product.id]: (prev[product.id] || 0) + 1,
-                        }))
-                      }
+                        }));
+                        addToCart(product); // Add product to cart context
+                      }}
                     >
                       +
                     </Button>
@@ -236,6 +238,7 @@ const ProductList: React.FC = () => {
                     className="ml-auto"
                     onClick={() => {
                       dispatch(setHomeScreen(false));
+                      removeFromCart(product.id); // Remove from cart when viewing details
                     }}
                   >
                     View Details

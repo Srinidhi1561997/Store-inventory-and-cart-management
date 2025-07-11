@@ -8,6 +8,7 @@ import NotFound from "./components/NotFound";
 import ProductDetails from "./pages/ProductDetails";
 import { useSelector } from "react-redux";
 import { type RootState } from "./store";
+import { CartProvider } from "./context/CartContext";
 function AppRoutes() {
   const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn);
   return (
@@ -30,9 +31,11 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <CartProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </CartProvider>
   );
 }
 

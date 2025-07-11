@@ -24,8 +24,6 @@ const ProductDetails: React.FC = () => {
     }
   }, [dispatch, selectedProduct, id]);
 
-  // const product: Product | undefined = data.find((p) => p.id === Number(id));
-
   if (loading)
     return (
       <Box display="flex" justifyContent="center" mt={4}>

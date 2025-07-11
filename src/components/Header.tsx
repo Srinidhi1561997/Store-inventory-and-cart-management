@@ -83,6 +83,7 @@ const ProductHeader: React.FC = () => {
   );
   const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn);
 
+  console.log("ProductHeader rendered", productCountsInCart);
   useEffect(() => {
     if (!isLoggedIn && location.pathname !== "/login") {
       navigate("/login", { replace: true });
