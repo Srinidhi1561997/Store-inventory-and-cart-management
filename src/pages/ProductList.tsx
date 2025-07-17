@@ -2,7 +2,16 @@ import ProductHeader from "../components/Header";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
-import { getProducts, type Product } from "../services/products/productsSlice";
+import {
+  deleteProductById,
+  getProducts,
+  type Product,
+} from "../services/products/productsSlice";
+import {
+  addToCart,
+  removeFromCart,
+  clearCart,
+} from "../services/cartActions/cartActionSlice";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -21,25 +30,30 @@ import {
   setHomeScreen,
   setProductCountInCart,
 } from "../services/headerActions/headerActionsSlice";
-import { useCart } from "../context/CartContext";
+import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import DiscardModal from "../components/Modal";
+import FloatingFilterDrawer from "../components/FloatingIcon";
+import { useNavigate } from "react-router-dom";
 
 const ProductList: React.FC = () => {
   const [debouncedSearchText, setDebouncedSearchText] = useState<string>("");
   const dispatch = useDispatch<AppDispatch>();
-  const [productCounts, setProductCounts] = useState<{ [id: number]: number }>(
-    {}
-  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
   const { searchText, sortedText, filteredText } = useSelector(
     (state: RootState) => state.headerActions
   );
-
-  const { data } = useSelector((state: RootState) => state.products);
-  const { addToCart, cart, removeFromCart } = useCart();
+  const navigate = useNavigate();
+  const { data, isProductDeleted } = useSelector(
+    (state: RootState) => state.products
+  );
+  const { cartItems } = useSelector((state: RootState) => state.cart);
 
   useEffect(() => {
     dispatch(getProducts());
   }, [dispatch]);
 
+  console.log("Products data:", searchText, sortedText, filteredText, data);
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchText(searchText);
@@ -64,7 +78,6 @@ const ProductList: React.FC = () => {
     } else if (sortedText === "Clear" || sortedText === "") {
       return 0;
     }
-
     return 0;
   });
 
@@ -80,6 +93,7 @@ const ProductList: React.FC = () => {
     } else if (filteredText === "clear" || filteredText === "") {
       return true;
     }
+    return false;
   });
   const displayProducts = sortedText
     ? sortedProducts
@@ -88,12 +102,12 @@ const ProductList: React.FC = () => {
     : searchedProducts;
 
   useEffect(() => {
-    const total = Object.values(cart).reduce(
+    const total = Object.values(cartItems).reduce(
       (sum, item) => sum + item.quantity,
       0
     );
     dispatch(setProductCountInCart(total));
-  }, [cart, dispatch]);
+  }, [cartItems, dispatch]);
 
   useEffect(() => {
     dispatch(setHomeScreen(true));
@@ -102,13 +116,38 @@ const ProductList: React.FC = () => {
     };
   }, [dispatch]);
 
-  console.log(
-    "Product Counts:",
-    productCounts,
-    filteredText,
-    sortedText,
-    searchText
-  );
+  const getQuantityById = (id: number): number | undefined => {
+    const product = cartItems.find((p) => p.id === id);
+    return product?.quantity;
+  };
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+  if (displayProducts.length < 1 && searchText.length > 0) {
+    return (
+      <>
+        <ProductHeader />
+        <div
+          style={{
+            top: 0,
+            right: 0,
+            left: 0,
+            bottom: 0,
+            position: "absolute",
+            display: "flex",
+            justifyContent: "center", // Horizontally center
+            alignItems: "center", // Vertically center
+            fontSize: "2.2rem",
+            color: "#777",
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+          }}
+        >
+          No results found
+        </div>
+        <FloatingFilterDrawer />
+      </>
+    );
+  }
   return (
     <>
       <ProductHeader />
@@ -126,6 +165,17 @@ const ProductList: React.FC = () => {
                   justifyContent: "space-between",
                 }}
               >
+                {/* <RemoveCircleIcon
+                  style={{
+                    alignSelf: "end",
+                    cursor: "pointer",
+                    color: "#1976d2",
+                  }}
+                  onClick={() => {
+                    setIsModalOpen(true);
+                    setDeleteProduct(product);
+                  }}
+                /> */}
                 <CardMedia
                   component="img"
                   image={product.image}
@@ -194,25 +244,19 @@ const ProductList: React.FC = () => {
                     className="flex flex-row items-center gap-2"
                     style={{ display: "flex" }}
                   >
-                    <Button
+                    {/* <Button
                       size="small"
                       variant="contained"
                       className="min-w-[36px]"
                       sx={{ minWidth: 36 }}
-                      onClick={() =>
-                        setProductCounts((prev) => ({
-                          ...prev,
-                          [product.id]: Math.max(
-                            (prev[product.id] || 0) - 1,
-                            0
-                          ),
-                        }))
-                      }
+                      onClick={() => {
+                        dispatch(removeFromCart(product.id));
+                      }}
                     >
                       -
                     </Button>
                     <Typography className="mx-2" style={{ padding: "4px " }}>
-                      {productCounts[product.id] || 0}
+                      {getQuantityById(product.id) || 0}
                     </Typography>
                     <Button
                       size="small"
@@ -220,14 +264,26 @@ const ProductList: React.FC = () => {
                       className="min-w-[36px]"
                       sx={{ minWidth: 36 }}
                       onClick={() => {
-                        setProductCounts((prev) => ({
-                          ...prev,
-                          [product.id]: (prev[product.id] || 0) + 1,
-                        }));
-                        addToCart(product); // Add product to cart context
+                        // setProductCounts((prev) => ({
+                        //   ...prev,
+                        //   [product.id]: (prev[product.id] || 0) + 1,
+                        // }));
+                        console.log("Adding to cart:", product);
+                        dispatch(addToCart(product)); // Add product to cart context
                       }}
                     >
                       +
+                    </Button> */}
+                    <Button
+                      onClick={() => {
+                        getQuantityById(product.id) > 0
+                          ? navigate("/cart")
+                          : dispatch(addToCart(product));
+                      }}
+                    >
+                      {getQuantityById(product.id) > 0
+                        ? "Move to cart"
+                        : "Add to cart"}
                     </Button>
                   </div>
                   <Button
@@ -238,7 +294,6 @@ const ProductList: React.FC = () => {
                     className="ml-auto"
                     onClick={() => {
                       dispatch(setHomeScreen(false));
-                      removeFromCart(product.id); // Remove from cart when viewing details
                     }}
                   >
                     View Details
@@ -249,6 +304,14 @@ const ProductList: React.FC = () => {
           ))}
         </Grid>
       </Box>
+      {isModalOpen && deleteProduct && (
+        <DiscardModal
+          open={isModalOpen}
+          handleClose={handleModalClose}
+          product={deleteProduct}
+        />
+      )}
+      <FloatingFilterDrawer />
     </>
   );
 };

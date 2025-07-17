@@ -1,6 +1,5 @@
 import React from "react";
 import ProductHeader from "../components/Header";
-import { useCart } from "../context/CartContext";
 import {
   Box,
   Card,
@@ -9,17 +8,23 @@ import {
   Typography,
   Button,
 } from "@mui/material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setProductCountInCart } from "../services/headerActions/headerActionsSlice";
+import type { AppDispatch, RootState } from "../store";
+import {
+  removeFromCart,
+  clearCart,
+  addToCart,
+} from "../services/cartActions/cartActionSlice";
 
 const Cart: React.FC = () => {
-  const { cart, addToCart, removeFromCart, clearCart } = useCart();
-  const dispatch = useDispatch();
+  const { cartItems } = useSelector((state: RootState) => state.cart);
+  const dispatch = useDispatch<AppDispatch>();
 
   React.useEffect(() => {
-    const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const total = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     dispatch(setProductCountInCart(total));
-  }, [cart, dispatch]);
+  }, [cartItems, dispatch]);
 
   return (
     <div>
@@ -34,12 +39,12 @@ const Cart: React.FC = () => {
           gap: 2,
         }}
       >
-        {cart.length === 0 ? (
+        {cartItems.length === 0 ? (
           <Typography variant="h6" align="center">
             Your cart is empty.
           </Typography>
         ) : (
-          cart.map((item) => (
+          cartItems.map((item) => (
             <Card
               key={item.id}
               sx={{
@@ -80,14 +85,14 @@ const Cart: React.FC = () => {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => dispatch(removeFromCart(item.id))}
                   >
                     -
                   </Button>
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => addToCart(item)}
+                    onClick={() => dispatch(addToCart(item))}
                   >
                     +
                   </Button>
@@ -96,8 +101,12 @@ const Cart: React.FC = () => {
             </Card>
           ))
         )}
-        {cart.length > 0 && (
-          <Button variant="contained" color="error" onClick={clearCart}>
+        {cartItems.length > 0 && (
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => dispatch(clearCart())}
+          >
             Clear Cart
           </Button>
         )}

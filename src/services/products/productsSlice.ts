@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchProducts, fetchProductById } from "./productsAPI";
+import { deleteProduct, fetchProducts } from "../../axios/apiClient.ts";
 
 export const getProducts = createAsyncThunk(
   "products/fetchProducts",
@@ -8,7 +8,12 @@ export const getProducts = createAsyncThunk(
 
 export const getProductById = createAsyncThunk(
   "products/fetchProductById",
-  (id: number) => fetchProductById(id)
+  (id: number) => fetchProducts(id)
+);
+
+export const deleteProductById = createAsyncThunk(
+  "products/deleteProductById",
+  (id: number) => deleteProduct(id)
 );
 
 export type Product = {
@@ -29,6 +34,7 @@ interface ProductState {
   loading: boolean;
   error: string | null | undefined;
   selectedProduct: Product | undefined;
+  isProductDeleted: boolean;
 }
 
 const initialState: ProductState = {
@@ -36,6 +42,7 @@ const initialState: ProductState = {
   loading: false,
   error: null,
   selectedProduct: undefined,
+  isProductDeleted: false,
 };
 
 const productsSlice = createSlice({
@@ -50,7 +57,7 @@ const productsSlice = createSlice({
       })
       .addCase(getProducts.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
+        state.data = action.payload as Product[];
       })
       .addCase(getProducts.rejected, (state, action) => {
         state.loading = false;
@@ -69,6 +76,20 @@ const productsSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
         state.selectedProduct = undefined;
+      })
+      .addCase(deleteProductById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.isProductDeleted = false;
+      })
+      .addCase(deleteProductById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isProductDeleted = true;
+      })
+      .addCase(deleteProductById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        state.isProductDeleted = false;
       });
   },
 });

@@ -28,7 +28,8 @@ import {
   setSearchText,
   setSortedText,
 } from "../services/headerActions/headerActionsSlice";
-import { setLoginStatus } from "../services/login/loginSlice";
+import { Drawer } from "@mui/material";
+import SidebarList from "./Sidebar";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -67,12 +68,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const ProductHeader: React.FC = () => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [toggleSidebar, setToggleSidebar] = useState<boolean>(false);
   const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
   const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(
     null
   );
-  const open = Boolean(anchorEl);
+  const open = Boolean(toggleSidebar);
   const isSortopen = Boolean(sortAnchorEl);
   const isFilteropen = Boolean(filterAnchorEl);
   const dispatch = useDispatch();
@@ -83,7 +84,7 @@ const ProductHeader: React.FC = () => {
   );
   const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn);
 
-  console.log("ProductHeader rendered", productCountsInCart);
+  // console.log("ProductHeader rendered", productCountsInCart);
   useEffect(() => {
     if (!isLoggedIn && location.pathname !== "/login") {
       navigate("/login", { replace: true });
@@ -91,15 +92,16 @@ const ProductHeader: React.FC = () => {
   }, [isLoggedIn, location.pathname, navigate]);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    console.log("menu menu clicked", event.currentTarget);
-    setAnchorEl(event.currentTarget);
+    setToggleSidebar(event.currentTarget);
   };
   const handleClose = () => {
-    setAnchorEl(null);
+    setToggleSidebar(false);
   };
 
   const handleSortMenu = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
     setSortAnchorEl(event.currentTarget);
+    dispatch(setSearchText(""));
   };
 
   const handleSortClose = (value: string) => {
@@ -107,32 +109,35 @@ const ProductHeader: React.FC = () => {
     setSortAnchorEl(null);
   };
   const handleFilterMenu = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
     setFilterAnchorEl(event.currentTarget);
+    dispatch(setSortedText(""));
   };
   const handleFilterClose = (value: string) => {
     dispatch(setFilteredText(value));
     setFilterAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    dispatch(setLoginStatus(false));
-    dispatch(setHomeScreen(false));
-    localStorage.removeItem("isLoggedIn");
+  const toggleDrawer = (open: boolean) => () => {
+    setToggleSidebar(open);
   };
 
   return (
-    <AppBar position="sticky" sx={{ background: "#1976d2", zIndex: 1201 }}>
+    <AppBar position="sticky" sx={{ background: "#1976d2", zIndex: 1 }}>
       <Toolbar sx={{ minHeight: 64 }}>
         <Box sx={{ display: "flex", alignItems: "center", flex: 1 }}>
           <IconButton
             edge="end"
             color="inherit"
             aria-label="menu"
-            onClick={handleMenu}
+            onClick={toggleDrawer(!toggleSidebar)}
             sx={{ mr: 2 }}
           >
             <MenuIcon fontSize="large" />
           </IconButton>
+          <Drawer open={open} onClose={toggleDrawer(false)}>
+            <SidebarList />
+          </Drawer>
           <Typography
             variant="h6"
             component="div"
@@ -149,7 +154,7 @@ const ProductHeader: React.FC = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           {isHomescreen ? (
             <>
-              <Search>
+              {/* <Search>
                 <SearchIconWrapper>
                   <SearchIcon />
                 </SearchIconWrapper>
@@ -159,7 +164,7 @@ const ProductHeader: React.FC = () => {
                   value={searchText}
                   onChange={(e) => dispatch(setSearchText(e.target.value))}
                 />
-              </Search>
+              </Search> */}
               <IconButton
                 component={Link}
                 edge="end"
@@ -180,7 +185,7 @@ const ProductHeader: React.FC = () => {
                   )}
                 </Badge>
               </IconButton>
-              <IconButton
+              {/* <IconButton
                 onClick={handleSortMenu}
                 edge="end"
                 color="inherit"
@@ -203,7 +208,7 @@ const ProductHeader: React.FC = () => {
                 ) : (
                   <FilterAltOutlined />
                 )}
-              </IconButton>
+              </IconButton> */}
             </>
           ) : (
             <IconButton
@@ -217,71 +222,7 @@ const ProductHeader: React.FC = () => {
               <HomeIcon />
             </IconButton>
           )}
-          <Link
-            to="/login"
-            style={{ textDecoration: "none", color: "white", marginLeft: 16 }}
-            onClick={handleLogout}
-          >
-            SignOut
-          </Link>
         </Box>
-        <Menu
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          anchorOrigin={{ vertical: "top", horizontal: "left" }}
-          transformOrigin={{ vertical: "top", horizontal: "left" }}
-        >
-          <MenuItem
-            component={Link}
-            to="/cart"
-            onClick={handleClose}
-            sx={{ position: "relative", pr: 4 }}
-          >
-            <Box
-              sx={{
-                position: "relative",
-                display: "inline-flex",
-                alignItems: "center",
-              }}
-            >
-              Cart
-              {productCountsInCart > 0 && (
-                <Badge
-                  badgeContent={productCountsInCart}
-                  color="error"
-                  sx={{
-                    position: "absolute",
-                    top: "50%",
-                    right: -32,
-                    transform: "translateY(-50%)",
-                    zIndex: 2,
-                    pointerEvents: "none",
-                  }}
-                  overlap="circular"
-                />
-              )}
-            </Box>
-          </MenuItem>
-          <MenuItem component={Link} to="/profile" onClick={handleClose}>
-            Profile
-          </MenuItem>
-          <MenuItem component={Link} to="/orders" onClick={handleClose}>
-            Order History
-          </MenuItem>
-          {!isHomescreen && (
-            <MenuItem
-              component={Link}
-              to="/products"
-              onClick={() => {
-                handleClose();
-                dispatch(setHomeScreen(true));
-              }}
-            >
-              Products
-            </MenuItem>
-          )}
-        </Menu>
         <Menu
           id="sort-menu"
           anchorEl={sortAnchorEl}
