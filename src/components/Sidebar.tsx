@@ -8,7 +8,7 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { ShoppingCart, ShoppingCartOutlined } from "@mui/icons-material";
+import { Home, ShoppingCart, ShoppingCartOutlined } from "@mui/icons-material";
 import HomeIcon from "@mui/icons-material/Home";
 import AddIcon from "@mui/icons-material/Add";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -31,6 +31,7 @@ const SidebarList: React.FC = () => {
     (state: RootState) => state.headerActions
   );
   const menuItems = [
+    { label: "Products", icon: <HomeIcon />, path: "/products" },
     {
       label: "Cart",
       icon: (
@@ -48,7 +49,6 @@ const SidebarList: React.FC = () => {
       path: "/cart",
     },
     { label: "Profile", icon: <AccountCircleIcon />, path: "/profile" },
-    { label: "Order History", icon: <HistoryIcon />, path: "/orders" },
   ];
   useEffect(() => {
     if (!isLoggedIn && location.pathname !== "/login") {
@@ -72,21 +72,23 @@ const SidebarList: React.FC = () => {
       }}
     >
       <List>
-        {menuItems.map((item, index) => (
-          <ListItemButton
-            key={item.path}
-            selected={location.pathname === item.path}
-            onClick={() => {
-              navigate(item.path);
-              dispatch(setHomeScreen(false));
-            }}
-          >
-            <>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
-            </>
-          </ListItemButton>
-        ))}
+        {menuItems
+          .filter((item) => item.path !== location.pathname)
+          .map((item, index) => (
+            <ListItemButton
+              key={item.path}
+              selected={location.pathname === item.path}
+              onClick={() => {
+                navigate(item.path);
+                dispatch(setHomeScreen(false));
+              }}
+            >
+              <>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.label} />
+              </>
+            </ListItemButton>
+          ))}
       </List>
       <Divider />
       <List>

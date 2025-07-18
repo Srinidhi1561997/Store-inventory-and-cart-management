@@ -3,7 +3,6 @@ import ProductList from "./pages/ProductList";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Cart from "./pages/Cart";
 import Profile from "./pages/Profile";
-import OrderHistory from "./pages/OrderHistory";
 import NotFound from "./components/NotFound";
 import ProductDetails from "./pages/ProductDetails";
 import { useSelector } from "react-redux";
@@ -21,7 +20,6 @@ function AppRoutes() {
         <Route path="/products" element={<ProductList />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/orders" element={<OrderHistory />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/productDetails/:id" element={<ProductDetails />} />
       </Routes>

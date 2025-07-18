@@ -1,11 +1,7 @@
 import { Box, Button, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import React from "react";
-import {
-  deleteProductById,
-  getProducts,
-  type Product,
-} from "../services/products/productsSlice";
+import { getProducts, type Product } from "../services/products/productsSlice";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 const style = {
@@ -27,7 +23,7 @@ interface ModalProps {
 const DiscardModal: React.FC<ModalProps> = ({ open, handleClose, product }) => {
   const dispatch = useDispatch<AppDispatch>();
   const onDelete = (product: Product) => {
-    dispatch(deleteProductById(Number(product.id)));
+    // dispatch(deleteProductById(Number(product.id)));
     handleClose();
     dispatch(getProducts());
   };

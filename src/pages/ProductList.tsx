@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
 import {
-  deleteProductById,
+  getProductById,
+  // deleteProductById,
   getProducts,
   type Product,
 } from "../services/products/productsSlice";
@@ -34,6 +35,7 @@ import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
 import DiscardModal from "../components/Modal";
 import FloatingFilterDrawer from "../components/FloatingIcon";
 import { useNavigate } from "react-router-dom";
+import SentimentPopup from "../components/SentimentComponent";
 
 const ProductList: React.FC = () => {
   const [debouncedSearchText, setDebouncedSearchText] = useState<string>("");
@@ -294,6 +296,7 @@ const ProductList: React.FC = () => {
                     className="ml-auto"
                     onClick={() => {
                       dispatch(setHomeScreen(false));
+                      dispatch(getProductById(product.id));
                     }}
                   >
                     View Details

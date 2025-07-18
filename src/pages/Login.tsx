@@ -5,7 +5,12 @@ import { createUseStyles } from "react-jss";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setLoginStatus } from "../services/login/loginSlice";
+import {
+  setLoginStatus,
+  setPassword,
+  setUsername,
+} from "../services/login/loginSlice";
+
 const loginData = [
   {
     userName: "user1",
@@ -110,6 +115,8 @@ const Login = () => {
         (user) =>
           user.userName === values.userName && user.password === values.password
       );
+      dispatch(setUsername(values.userName));
+      dispatch(setPassword(values.password));
       if (user) {
         navigate("/products");
         dispatch(setLoginStatus(true));

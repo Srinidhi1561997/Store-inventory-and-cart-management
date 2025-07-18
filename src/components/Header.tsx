@@ -3,120 +3,31 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import InputBase from "@mui/material/InputBase";
-import SearchIcon from "@mui/icons-material/Search";
-import { styled, alpha } from "@mui/material/styles";
-import SortIcon from "@mui/icons-material/Sort";
-import HomeIcon from "@mui/icons-material/Home";
-import {
-  FilterAltOffOutlined,
-  FilterAltOutlined,
-  ShoppingCart,
-  ShoppingCartOutlined,
-} from "@mui/icons-material";
+import { ShoppingCart, ShoppingCartOutlined } from "@mui/icons-material";
 import Badge from "@mui/material/Badge";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "../store";
-import {
-  setFilteredText,
-  setHomeScreen,
-  setSearchText,
-  setSortedText,
-} from "../services/headerActions/headerActionsSlice";
 import { Drawer } from "@mui/material";
 import SidebarList from "./Sidebar";
 
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: theme.spacing(2),
-  marginRight: theme.spacing(2),
-  width: 200,
-  display: "flex",
-  alignItems: "center",
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  width: "100%",
-  paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-  },
-}));
-
 const ProductHeader: React.FC = () => {
   const [toggleSidebar, setToggleSidebar] = useState<boolean>(false);
-  const [sortAnchorEl, setSortAnchorEl] = useState<null | HTMLElement>(null);
-  const [filterAnchorEl, setFilterAnchorEl] = useState<null | HTMLElement>(
-    null
-  );
   const open = Boolean(toggleSidebar);
-  const isSortopen = Boolean(sortAnchorEl);
-  const isFilteropen = Boolean(filterAnchorEl);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { searchText, productCountsInCart, isHomescreen } = useSelector(
+  const { productCountsInCart } = useSelector(
     (state: RootState) => state.headerActions
   );
   const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn);
 
-  // console.log("ProductHeader rendered", productCountsInCart);
   useEffect(() => {
     if (!isLoggedIn && location.pathname !== "/login") {
       navigate("/login", { replace: true });
     }
   }, [isLoggedIn, location.pathname, navigate]);
-
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setToggleSidebar(event.currentTarget);
-  };
-  const handleClose = () => {
-    setToggleSidebar(false);
-  };
-
-  const handleSortMenu = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
-    setSortAnchorEl(event.currentTarget);
-    dispatch(setSearchText(""));
-  };
-
-  const handleSortClose = (value: string) => {
-    dispatch(setSortedText(value));
-    setSortAnchorEl(null);
-  };
-  const handleFilterMenu = (event: React.MouseEvent<HTMLElement>) => {
-    event.stopPropagation();
-    setFilterAnchorEl(event.currentTarget);
-    dispatch(setSortedText(""));
-  };
-  const handleFilterClose = (value: string) => {
-    dispatch(setFilteredText(value));
-    setFilterAnchorEl(null);
-  };
 
   const toggleDrawer = (open: boolean) => () => {
     setToggleSidebar(open);
@@ -152,19 +63,8 @@ const ProductHeader: React.FC = () => {
           </Typography>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {isHomescreen ? (
+          {location.pathname !== "/cart" ? (
             <>
-              {/* <Search>
-                <SearchIconWrapper>
-                  <SearchIcon />
-                </SearchIconWrapper>
-                <StyledInputBase
-                  placeholder="Search…"
-                  inputProps={{ "aria-label": "search" }}
-                  value={searchText}
-                  onChange={(e) => dispatch(setSearchText(e.target.value))}
-                />
-              </Search> */}
               <IconButton
                 component={Link}
                 edge="end"
@@ -185,125 +85,9 @@ const ProductHeader: React.FC = () => {
                   )}
                 </Badge>
               </IconButton>
-              {/* <IconButton
-                onClick={handleSortMenu}
-                edge="end"
-                color="inherit"
-                aria-label="sort"
-                sx={{
-                  transform: isSortopen ? "rotate(0deg)" : "rotate(180deg)",
-                  transition: "transform 0.3s",
-                }}
-              >
-                <SortIcon />
-              </IconButton>
-              <IconButton
-                onClick={handleFilterMenu}
-                edge="end"
-                color="inherit"
-                aria-label="sort"
-              >
-                {isFilteropen ? (
-                  <FilterAltOffOutlined />
-                ) : (
-                  <FilterAltOutlined />
-                )}
-              </IconButton> */}
             </>
-          ) : (
-            <IconButton
-              component={Link}
-              edge="end"
-              color="inherit"
-              aria-label="sort"
-              to="/products"
-              onClick={() => dispatch(setHomeScreen(true))}
-            >
-              <HomeIcon />
-            </IconButton>
-          )}
+          ) : null}
         </Box>
-        <Menu
-          id="sort-menu"
-          anchorEl={sortAnchorEl}
-          open={isSortopen}
-          onClose={handleSortClose}
-          slotProps={{
-            list: {
-              "aria-labelledby": "basic-button",
-              sx: {
-                py: 0,
-              },
-            },
-          }}
-        >
-          <MenuItem
-            onClick={() => handleSortClose("asc")}
-            value={"price Low to High"}
-          >
-            price Low to High
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleSortClose("desc")}
-            value={"price High to Low"}
-          >
-            price High to Low
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleSortClose("ratings")}
-            value={"ratings"}
-          >
-            Ratings
-          </MenuItem>
-          <MenuItem onClick={() => handleSortClose("title")} value={"title"}>
-            A-Z
-          </MenuItem>
-          <MenuItem onClick={() => handleSortClose("Clear")} value={"Clear"}>
-            Clear
-          </MenuItem>
-        </Menu>
-        <Menu
-          id="filter-menu"
-          anchorEl={filterAnchorEl}
-          open={isFilteropen}
-          onClose={handleFilterClose}
-          slotProps={{
-            list: {
-              "aria-labelledby": "basic-button",
-              sx: {
-                py: 0,
-              },
-            },
-          }}
-        >
-          <MenuItem
-            onClick={() => handleFilterClose("electronics")}
-            value={"electronics"}
-          >
-            Electronics
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleFilterClose("jewelery")}
-            value={"jewelery"}
-          >
-            Jewelery
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleFilterClose("men's clothing")}
-            value={"men's clothing"}
-          >
-            Men's Clothing
-          </MenuItem>
-          <MenuItem
-            onClick={() => handleFilterClose("women's clothing")}
-            value={"women's clothing"}
-          >
-            Women's Clothing
-          </MenuItem>
-          <MenuItem onClick={() => handleFilterClose("clear")} value={"Clear"}>
-            Clear
-          </MenuItem>
-        </Menu>
       </Toolbar>
     </AppBar>
   );

@@ -12,6 +12,7 @@ import {
   Typography,
   Chip,
   Paper,
+  CardMedia,
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { setLoginStatus } from "../services/login/loginSlice";
@@ -20,6 +21,8 @@ import { setHomeScreen } from "../services/headerActions/headerActionsSlice";
 import type { RootState } from "../store";
 import { useNavigate } from "react-router-dom";
 import ProductHeader from "../components/Header";
+import { removeOrder } from "../services/cartActions/cartActionSlice";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 // src/types/User.ts
 export interface Order {
   id: number;
@@ -32,19 +35,19 @@ export interface UserProfileData {
   username: string;
   email: string;
   joinedAt: string;
-  orders: Order[];
+  orders: any[];
 }
 
-const dummyUser: UserProfileData = {
-  username: "srinidhi_hs",
-  email: "srinidhi@example.com",
-  joinedAt: "2023-03-10",
-  orders: [
-    { id: 1, date: "2024-07-01", total: 250, status: "Delivered" },
-    { id: 2, date: "2024-06-15", total: 130, status: "Processing" },
-    { id: 3, date: "2024-05-28", total: 99.99, status: "Cancelled" },
-  ],
-};
+// const dummyUser: UserProfileData = {
+//   username: "srinidhi_hs",
+//   email: "srinidhi@example.com",
+//   joinedAt: "2023-03-10",
+//   orders: [
+//     { id: 1, date: "2024-07-01", total: 250, status: "Delivered" },
+//     { id: 2, date: "2024-06-15", total: 130, status: "Processing" },
+//     { id: 3, date: "2024-05-28", total: 99.99, status: "Cancelled" },
+//   ],
+// };
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -63,11 +66,24 @@ const UserProfile: React.FC = () => {
   const [user, setUser] = useState<UserProfileData | null>(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isLoggedIn = useSelector((state: RootState) => state.login);
+  const { isLoggedIn, username } = useSelector(
+    (state: RootState) => state.login
+  );
+  const { orderItems } = useSelector((state: RootState) => state.cart);
+  const dummyUser = {} as UserProfileData;
+  const groupedOrders = new Map();
+  console.log("orderstate", orderItems);
   useEffect(() => {
     // Simulate fetch
+    const indexOfA = username.indexOf("@");
+    Object.assign(dummyUser, {
+      username: username.slice(0, indexOfA),
+      email: username,
+      joinedAt: new Date().toString(),
+      orders: [...orderItems],
+    });
     setTimeout(() => setUser(dummyUser), 300);
-  }, []);
+  }, [orderItems]);
 
   useEffect(() => {
     if (!isLoggedIn && location.pathname !== "/login") {
@@ -82,6 +98,7 @@ const UserProfile: React.FC = () => {
     navigate("/login", { replace: true });
     console.log("User logged out");
   };
+
   if (!user) {
     return (
       <Box display="flex" justifyContent="center" mt={10}>
@@ -90,6 +107,7 @@ const UserProfile: React.FC = () => {
     );
   }
 
+  console.log("orderItems....", Array.from(groupedOrders.values()));
   return (
     <>
       <ProductHeader />
@@ -112,7 +130,7 @@ const UserProfile: React.FC = () => {
               <Typography variant="h5" fontWeight="bold">
                 {user.username}
               </Typography>
-              <Typography color="text.secondary">{user.email}</Typography>
+              {/* <Typography color="text.secondary">{user.email}</Typography> */}
               <Typography variant="body2" color="text.secondary">
                 Joined: {new Date(user.joinedAt).toLocaleDateString()}
               </Typography>
@@ -136,29 +154,78 @@ const UserProfile: React.FC = () => {
             Order History
           </Typography>
           <Grid container spacing={2}>
-            {user.orders.map((order) => (
-              <Grid item xs={12} sm={6} key={order.id}>
-                <Card variant="outlined">
-                  <CardContent>
-                    <Typography variant="subtitle1" fontWeight="medium">
-                      Order #{order.id}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Date: {order.date}
-                    </Typography>
-                    <Typography variant="body2" mt={1}>
-                      Total: ₹{order.total.toFixed(2)}
-                    </Typography>
-                    <Chip
-                      label={order.status}
-                      color={getStatusColor(order.status)}
-                      size="small"
-                      sx={{ mt: 1 }}
-                    />
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+            {user.orders
+              .sort((a, b) => a - b)
+              .map((order) => (
+                <Grid item xs={12} sm={6} key={order.id}>
+                  <Card variant="outlined">
+                    <CardContent sx={{ position: "relative" }}>
+                      <RemoveCircleOutlineIcon
+                        style={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                          cursor: "pointer",
+                          color: "red",
+                        }}
+                        onClick={() => {
+                          dispatch(removeOrder(order.id));
+                          console.log("am i clicked");
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 2, // spacing between image and text
+                          backgroundColor: "#fff",
+                          padding: 2,
+                          borderRadius: 2,
+                          boxShadow: 1,
+                        }}
+                      >
+                        <CardMedia
+                          component="img"
+                          image={order.image}
+                          alt={order.title}
+                          sx={{
+                            objectFit: "contain",
+                            height: 200,
+                            background: "#f9f9f9",
+                            width: 200,
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 1, // adds spacing between each item
+                          }}
+                        >
+                          <Typography variant="subtitle1" fontWeight="medium">
+                            Order #{order.id}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Date: {order.date}
+                          </Typography>
+                          <Typography variant="body2" mt={1}>
+                            Total: ₹{order.total}
+                          </Typography>
+                          <Typography variant="body2" mt={1}>
+                            Quantity: ₹{order.quantity}
+                          </Typography>
+                          <Chip
+                            label={order.status}
+                            color={getStatusColor(order.status)}
+                            size="small"
+                            sx={{ mt: 1, width: "100px" }}
+                          />
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
           </Grid>
         </Paper>
       </Container>

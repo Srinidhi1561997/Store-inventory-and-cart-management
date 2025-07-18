@@ -35,9 +35,9 @@ const FloatingFilterDrawer: React.FC = () => {
   const dispatch = useDispatch();
   const toggleDrawer = (open: boolean) => () => {
     setDrawerOpen(open);
-    dispatch(setFilteredText(""));
-    dispatch(setSearchText(""));
-    dispatch(setSortedText(""));
+    // dispatch(setFilteredText(""));
+    // dispatch(setSearchText(""));
+    // dispatch(setSortedText(""));
   };
 
   return (
