@@ -1,9 +1,11 @@
 import { Box, Button, Typography } from "@mui/material";
 import Modal from "@mui/material/Modal";
 import React from "react";
-import { getProducts, type Product } from "../services/products/productsSlice";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
+import { setLoginStatus } from "../services/login/loginSlice";
+import { setHomeScreen } from "../services/headerActions/headerActionsSlice";
+import { useNavigate } from "react-router-dom";
 const style = {
   position: "absolute",
   top: "50%",
@@ -18,16 +20,18 @@ const style = {
 interface ModalProps {
   open: boolean;
   handleClose: () => void;
-  product: Product;
 }
-const DiscardModal: React.FC<ModalProps> = ({ open, handleClose, product }) => {
+const SignOutModal: React.FC<ModalProps> = ({ open, handleClose }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const onDelete = (product: Product) => {
-    // dispatch(deleteProductById(Number(product.id)));
-    handleClose();
-    dispatch(getProducts());
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    dispatch(setLoginStatus(false));
+    dispatch(setHomeScreen(false));
+    localStorage.removeItem("isLoggedIn");
+    navigate("/login", { replace: true });
   };
-  console.log("Product to delete:", product);
+
   return (
     <Modal
       open={open}
@@ -41,7 +45,7 @@ const DiscardModal: React.FC<ModalProps> = ({ open, handleClose, product }) => {
     >
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          Are you sure you want to delete {product.title} product from the cart?
+          Are you sure you want to Exit?
         </Typography>
         <>
           <Button variant="text" onClick={handleClose}>
@@ -52,12 +56,12 @@ const DiscardModal: React.FC<ModalProps> = ({ open, handleClose, product }) => {
               Cancel
             </Typography>
           </Button>
-          <Button variant="text" onClick={() => onDelete(product)}>
+          <Button variant="text" onClick={handleLogout}>
             <Typography
               variant="body2"
               sx={{ color: "#d32f2f", cursor: "pointer" }}
             >
-              Delete
+              Yes
             </Typography>
           </Button>
         </>
@@ -66,4 +70,4 @@ const DiscardModal: React.FC<ModalProps> = ({ open, handleClose, product }) => {
   );
 };
 
-export default DiscardModal;
+export default SignOutModal;

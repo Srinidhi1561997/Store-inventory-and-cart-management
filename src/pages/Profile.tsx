@@ -21,9 +21,15 @@ import { setHomeScreen } from "../services/headerActions/headerActionsSlice";
 import type { RootState } from "../store";
 import { useNavigate } from "react-router-dom";
 import ProductHeader from "../components/Header";
-import { removeOrder } from "../services/cartActions/cartActionSlice";
+import {
+  removeOrder,
+  type CartState,
+} from "../services/cartActions/cartActionSlice";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-// src/types/User.ts
+import SignOutModal from "../components/Modal";
+import { getStatusColor } from "../utils/dataUtils";
+import { createUseStyles } from "react-jss";
+
 export interface Order {
   id: number;
   date: string;
@@ -35,35 +41,67 @@ export interface UserProfileData {
   username: string;
   email: string;
   joinedAt: string;
-  orders: any[];
+  orders: CartState["cartItems"];
 }
 
-// const dummyUser: UserProfileData = {
-//   username: "srinidhi_hs",
-//   email: "srinidhi@example.com",
-//   joinedAt: "2023-03-10",
-//   orders: [
-//     { id: 1, date: "2024-07-01", total: 250, status: "Delivered" },
-//     { id: 2, date: "2024-06-15", total: 130, status: "Processing" },
-//     { id: 3, date: "2024-05-28", total: 99.99, status: "Cancelled" },
-//   ],
-// };
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Delivered":
-      return "success";
-    case "Processing":
-      return "warning";
-    case "Cancelled":
-      return "error";
-    default:
-      return "default";
-  }
-};
+const useStyles = createUseStyles({
+  container: {
+    paddingTop: 48, // py: 6
+  },
+  paper: {
+    padding: 32,
+    borderRadius: 12,
+  },
+  avatar: {
+    width: 64,
+    height: 64,
+    fontSize: 28,
+    backgroundColor: "#1976d2", // fallback for primary.main
+  },
+  signOutBtn: {
+    display: "flex",
+    alignItems: "center",
+  },
+  orderCardContent: {
+    position: "relative",
+  },
+  deleteIcon: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    cursor: "pointer",
+    color: "red",
+  },
+  orderBox: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: 16,
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 8,
+    boxShadow: "0px 1px 3px rgba(0,0,0,0.2)",
+  },
+  cardImage: {
+    objectFit: "contain",
+    height: 200,
+    width: 200,
+    background: "#f9f9f9",
+  },
+  orderDetails: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+  },
+  chip: {
+    marginTop: 8,
+    width: 100,
+  },
+});
 
 const UserProfile: React.FC = () => {
+  const classes = useStyles();
   const [user, setUser] = useState<UserProfileData | null>(null);
+  const [isModal, setIsModal] = useState<boolean>(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoggedIn, username } = useSelector(
@@ -71,8 +109,6 @@ const UserProfile: React.FC = () => {
   );
   const { orderItems } = useSelector((state: RootState) => state.cart);
   const dummyUser = {} as UserProfileData;
-  const groupedOrders = new Map();
-  console.log("orderstate", orderItems);
   useEffect(() => {
     // Simulate fetch
     const indexOfA = username.indexOf("@");
@@ -91,12 +127,8 @@ const UserProfile: React.FC = () => {
     }
   }, [isLoggedIn, navigate]);
 
-  const handleLogout = () => {
-    dispatch(setLoginStatus(false));
-    dispatch(setHomeScreen(false));
-    localStorage.removeItem("isLoggedIn");
-    navigate("/login", { replace: true });
-    console.log("User logged out");
+  const handleModalClose = () => {
+    setIsModal(false);
   };
 
   if (!user) {
@@ -107,22 +139,14 @@ const UserProfile: React.FC = () => {
     );
   }
 
-  console.log("orderItems....", Array.from(groupedOrders.values()));
   return (
     <>
       <ProductHeader />
-      <Container maxWidth="md" sx={{ py: 6 }}>
-        <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
+      <Container maxWidth="md" className={classes.container}>
+        <Paper elevation={3} className={classes.paper}>
           <Grid container spacing={2} alignItems="center">
             <Grid item>
-              <Avatar
-                sx={{
-                  width: 64,
-                  height: 64,
-                  bgcolor: "primary.main",
-                  fontSize: 28,
-                }}
-              >
+              <Avatar className={classes.avatar}>
                 {user.username.slice(0, 2).toUpperCase()}
               </Avatar>
             </Grid>
@@ -130,7 +154,6 @@ const UserProfile: React.FC = () => {
               <Typography variant="h5" fontWeight="bold">
                 {user.username}
               </Typography>
-              {/* <Typography color="text.secondary">{user.email}</Typography> */}
               <Typography variant="body2" color="text.secondary">
                 Joined: {new Date(user.joinedAt).toLocaleDateString()}
               </Typography>
@@ -140,7 +163,7 @@ const UserProfile: React.FC = () => {
                 variant="contained"
                 color="error"
                 startIcon={<LogoutIcon />}
-                onClick={handleLogout}
+                onClick={() => setIsModal(true)}
               >
                 Sign Out
               </Button>
@@ -149,76 +172,45 @@ const UserProfile: React.FC = () => {
 
           <Divider sx={{ my: 4 }} />
 
-          {/* Order History */}
           <Typography variant="h6" mb={2}>
             Order History
           </Typography>
           <Grid container spacing={2}>
             {user.orders
-              .sort((a, b) => a - b)
+              .sort((a, b) => a.id - b.id)
               .map((order) => (
                 <Grid item xs={12} sm={6} key={order.id}>
                   <Card variant="outlined">
-                    <CardContent sx={{ position: "relative" }}>
+                    <CardContent className={classes.orderCardContent}>
                       <RemoveCircleOutlineIcon
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          right: 8,
-                          cursor: "pointer",
-                          color: "red",
-                        }}
-                        onClick={() => {
-                          dispatch(removeOrder(order.id));
-                          console.log("am i clicked");
-                        }}
+                        className={classes.deleteIcon}
+                        onClick={() => dispatch(removeOrder(order.id))}
                       />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          gap: 2, // spacing between image and text
-                          backgroundColor: "#fff",
-                          padding: 2,
-                          borderRadius: 2,
-                          boxShadow: 1,
-                        }}
-                      >
+                      <Box className={classes.orderBox}>
                         <CardMedia
                           component="img"
                           image={order.image}
                           alt={order.title}
-                          sx={{
-                            objectFit: "contain",
-                            height: 200,
-                            background: "#f9f9f9",
-                            width: 200,
-                          }}
+                          className={classes.cardImage}
                         />
-                        <Box
-                          sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 1, // adds spacing between each item
-                          }}
-                        >
+                        <Box className={classes.orderDetails}>
                           <Typography variant="subtitle1" fontWeight="medium">
                             Order #{order.id}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
                             Date: {order.date}
                           </Typography>
-                          <Typography variant="body2" mt={1}>
+                          <Typography variant="body2">
                             Total: ₹{order.total}
                           </Typography>
-                          <Typography variant="body2" mt={1}>
-                            Quantity: ₹{order.quantity}
+                          <Typography variant="body2">
+                            Quantity: {order.quantity}
                           </Typography>
                           <Chip
                             label={order.status}
                             color={getStatusColor(order.status)}
                             size="small"
-                            sx={{ mt: 1, width: "100px" }}
+                            className={classes.chip}
                           />
                         </Box>
                       </Box>
@@ -229,6 +221,7 @@ const UserProfile: React.FC = () => {
           </Grid>
         </Paper>
       </Container>
+      <SignOutModal open={isModal} handleClose={handleModalClose} />
     </>
   );
 };

@@ -18,7 +18,7 @@ import type { RootState } from "../store";
 interface SentimentPopupProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (rating: number, comment: string) => void;
+  onSubmit: (rating: number, comment?: string) => void;
 }
 
 const SentimentPopup: React.FC<SentimentPopupProps> = ({

@@ -19,8 +19,47 @@ import {
   addToCart,
   createOrder,
 } from "../services/cartActions/cartActionSlice";
+import { createUseStyles } from "react-jss";
 
+const useStyles = createUseStyles({
+  container: {
+    maxWidth: 600,
+    margin: "4rem auto 0 auto",
+    display: "flex",
+    flexDirection: "column",
+    gap: 16,
+  },
+  card: {
+    display: "flex",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  image: {
+    width: 150,
+    height: 150,
+    objectFit: "contain",
+    background: "#f9f9f9",
+  },
+  content: {
+    flex: 1,
+  },
+  buttonGroup: {
+    display: "flex",
+    gap: 8,
+    marginTop: 8,
+  },
+  totalText: {
+    textAlign: "right",
+    paddingRight: 8,
+  },
+  actions: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: 16,
+  },
+});
 const Cart: React.FC = () => {
+  const classes = useStyles();
   const { cartItems } = useSelector((state: RootState) => state.cart);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -44,16 +83,7 @@ const Cart: React.FC = () => {
   return (
     <div>
       <ProductHeader />
-      <Box
-        sx={{
-          maxWidth: 600,
-          mx: "auto",
-          mt: 4,
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-        }}
-      >
+      <div className={classes.container}>
         {cartItems.length === 0 ? (
           <Typography variant="h6" align="center">
             Your cart is empty.
@@ -61,26 +91,14 @@ const Cart: React.FC = () => {
         ) : (
           <>
             {cartItems.map((item) => (
-              <Card
-                key={item.id}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
+              <Card key={item.id} className={classes.card}>
                 <CardMedia
                   component="img"
                   image={item.image}
                   alt={item.title}
-                  sx={{
-                    width: 100,
-                    height: 100,
-                    objectFit: "contain",
-                    background: "#f9f9f9",
-                  }}
+                  className={classes.image}
                 />
-                <CardContent sx={{ flex: 1 }}>
+                <CardContent className={classes.content}>
                   <Typography variant="h6">{item.title}</Typography>
                   <Typography variant="body2" color="text.secondary">
                     {item.category}
@@ -91,13 +109,7 @@ const Cart: React.FC = () => {
                   <Typography variant="body2">
                     Quantity: {item.quantity}
                   </Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      gap: 1,
-                      mt: 1,
-                    }}
-                  >
+                  <div className={classes.buttonGroup}>
                     <Button
                       variant="outlined"
                       size="small"
@@ -112,20 +124,18 @@ const Cart: React.FC = () => {
                     >
                       +
                     </Button>
-                  </Box>
+                  </div>
                 </CardContent>
               </Card>
             ))}
 
             <Divider sx={{ my: 2 }} />
 
-            <Typography variant="h6" align="right" sx={{ pr: 1 }}>
+            <Typography variant="h6" className={classes.totalText}>
               Total: ${totalPrice.toFixed(2)}
             </Typography>
 
-            <Box
-              sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}
-            >
+            <div className={classes.actions}>
               <Button
                 variant="outlined"
                 color="error"
@@ -140,10 +150,10 @@ const Cart: React.FC = () => {
               >
                 Checkout
               </Button>
-            </Box>
+            </div>
           </>
         )}
-      </Box>
+      </div>
     </div>
   );
 };

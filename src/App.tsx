@@ -1,10 +1,10 @@
 import Login from "./pages/Login";
-import ProductList from "./pages/ProductList";
+import ProductList from "./pages/Products";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Cart from "./pages/Cart";
 import Profile from "./pages/Profile";
 import NotFound from "./components/NotFound";
-import ProductDetails from "./pages/ProductDetails";
+import ProductDetails from "./pages/ViewProduct";
 import { useSelector } from "react-redux";
 import { type RootState } from "./store";
 

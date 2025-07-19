@@ -24,64 +24,71 @@ type FeedbackPopupProps = {
 const FeedbackPopup: React.FC<FeedbackPopupProps> = ({ open, onClose }) => {
   const dispatch = useDispatch();
   const reviews = useSelector((state: RootState) => state.review.reviews);
-
+  const { selectedProduct } = useSelector((state: RootState) => state.products);
   const handleDelete = (productId: number) => {
     dispatch(removeReview(productId));
   };
+  const isReviewsforProduct = reviews.find(
+    (review) => review.productId === selectedProduct?.id
+  );
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>User Feedback</DialogTitle>
       <DialogContent dividers>
-        {reviews.length === 0 ? (
+        {reviews.length === 0 || !isReviewsforProduct ? (
           <Typography variant="body1" color="text.secondary" align="center">
             No feedback available.
           </Typography>
         ) : (
           reviews.map((review) => (
-            <Box key={review.productId} mb={2}>
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <Typography variant="subtitle1">
-                  Product ID: {review.productId}
-                </Typography>
-                <IconButton
-                  onClick={() => handleDelete(review.productId)}
-                  color="error"
-                >
-                  <DeleteIcon />
-                </IconButton>
-              </Box>
+            <>
+              {review.productId === selectedProduct?.id && (
+                <Box key={review.productId} mb={2}>
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Typography variant="subtitle1">
+                      Product ID: {review.productId}
+                    </Typography>
+                    <IconButton
+                      onClick={() => handleDelete(review.productId)}
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
 
-              <Box display="flex" alignItems="center" mt={0.5}>
-                {[...Array(5)].map((_, i) => (
-                  <StarIcon
-                    key={i}
-                    sx={{
-                      color: i < review.rating ? "#FFD700" : "#ccc",
-                      fontSize: 20,
-                    }}
-                  />
-                ))}
-                <Typography variant="body2" sx={{ ml: 1 }}>
-                  {review.rating}/5
-                </Typography>
-              </Box>
+                  <Box display="flex" alignItems="center" mt={0.5}>
+                    {[...Array(5)].map((_, i) => (
+                      <StarIcon
+                        key={i}
+                        sx={{
+                          color: i < review.rating ? "#FFD700" : "#ccc",
+                          fontSize: 20,
+                        }}
+                      />
+                    ))}
+                    <Typography variant="body2" sx={{ ml: 1 }}>
+                      {review.rating}/5
+                    </Typography>
+                  </Box>
 
-              {review.comment && (
-                <Typography
-                  variant="body2"
-                  sx={{ mt: 0.5 }}
-                  color="text.secondary"
-                >
-                  {review.comment}
-                </Typography>
+                  {review.comment && (
+                    <Typography
+                      variant="body2"
+                      sx={{ mt: 0.5 }}
+                      color="text.secondary"
+                    >
+                      {review.comment}
+                    </Typography>
+                  )}
+                  <Divider sx={{ my: 1 }} />
+                </Box>
               )}
-              <Divider sx={{ my: 1 }} />
-            </Box>
+            </>
           ))
         )}
       </DialogContent>

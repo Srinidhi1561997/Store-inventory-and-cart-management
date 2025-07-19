@@ -13,7 +13,6 @@ import {
 import FilterListIcon from "@mui/icons-material/FilterList";
 import {
   setFilteredText,
-  setHomeScreen,
   setSearchText,
   setSortedText,
 } from "../services/headerActions/headerActionsSlice";
@@ -22,6 +21,7 @@ import type { RootState } from "../store";
 
 const FloatingFilterDrawer: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const dispatch = useDispatch();
   const searchText = useSelector(
     (state: RootState) => state.headerActions.searchText
   );
@@ -31,18 +31,13 @@ const FloatingFilterDrawer: React.FC = () => {
   const sortOrder = useSelector(
     (state: RootState) => state.headerActions.sortedText
   );
-  //   const [sortOrder, setSortOrder] = useState("");
-  const dispatch = useDispatch();
+
   const toggleDrawer = (open: boolean) => () => {
     setDrawerOpen(open);
-    // dispatch(setFilteredText(""));
-    // dispatch(setSearchText(""));
-    // dispatch(setSortedText(""));
   };
 
   return (
     <>
-      {/* Floating Action Button */}
       <Fab
         color="primary"
         aria-label="filter"
@@ -57,7 +52,6 @@ const FloatingFilterDrawer: React.FC = () => {
         <FilterListIcon />
       </Fab>
 
-      {/* Right Drawer */}
       <Drawer
         anchor="right"
         open={drawerOpen}
@@ -71,7 +65,6 @@ const FloatingFilterDrawer: React.FC = () => {
             Filter Options
           </Typography>
 
-          {/* Search */}
           <TextField
             label="Search"
             variant="outlined"
@@ -85,7 +78,6 @@ const FloatingFilterDrawer: React.FC = () => {
             sx={{ mb: 2 }}
           />
 
-          {/* Filter Dropdown */}
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>Category</InputLabel>
             <Select
@@ -107,7 +99,6 @@ const FloatingFilterDrawer: React.FC = () => {
             </Select>
           </FormControl>
 
-          {/* Sort Dropdown */}
           <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel>Sort by Price</InputLabel>
             <Select

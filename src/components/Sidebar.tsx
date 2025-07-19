@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Badge,
   Divider,
@@ -8,17 +8,15 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import { Home, ShoppingCart, ShoppingCartOutlined } from "@mui/icons-material";
+import { ShoppingCart, ShoppingCartOutlined } from "@mui/icons-material";
 import HomeIcon from "@mui/icons-material/Home";
-import AddIcon from "@mui/icons-material/Add";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import HistoryIcon from "@mui/icons-material/History";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { useLocation, useNavigate } from "react-router-dom";
-import { setLoginStatus } from "../services/login/loginSlice";
 import { setHomeScreen } from "../services/headerActions/headerActionsSlice";
 import type { RootState } from "../store";
 import { useDispatch, useSelector } from "react-redux";
+import SignOutModal from "./Modal";
 
 const drawerWidth = 240;
 
@@ -27,7 +25,8 @@ const SidebarList: React.FC = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const isLoggedIn = useSelector((state: RootState) => state.login.isLoggedIn);
-  const { productCountsInCart, isHomescreen } = useSelector(
+  const [isModal, setIsModal] = useState<boolean>(false);
+  const { productCountsInCart } = useSelector(
     (state: RootState) => state.headerActions
   );
   const menuItems = [
@@ -56,12 +55,9 @@ const SidebarList: React.FC = () => {
     }
   }, [isLoggedIn, location.pathname, navigate]);
 
-  const handleLogout = () => {
-    dispatch(setLoginStatus(false));
-    dispatch(setHomeScreen(false));
-    localStorage.removeItem("isLoggedIn");
+  const closeModal = () => {
+    setIsModal(false);
   };
-
   return (
     <Drawer
       variant="permanent"
@@ -74,7 +70,7 @@ const SidebarList: React.FC = () => {
       <List>
         {menuItems
           .filter((item) => item.path !== location.pathname)
-          .map((item, index) => (
+          .map((item) => (
             <ListItemButton
               key={item.path}
               selected={location.pathname === item.path}
@@ -92,8 +88,8 @@ const SidebarList: React.FC = () => {
       </List>
       <Divider />
       <List>
-        {["SignOut"].map((text, index) => (
-          <ListItemButton onClick={handleLogout}>
+        {["SignOut"].map((text) => (
+          <ListItemButton onClick={() => setIsModal(true)}>
             <ListItemIcon>
               <ExitToAppIcon />
             </ListItemIcon>
@@ -101,6 +97,7 @@ const SidebarList: React.FC = () => {
           </ListItemButton>
         ))}
       </List>
+      <SignOutModal open={isModal} handleClose={closeModal} />
     </Drawer>
   );
 };
