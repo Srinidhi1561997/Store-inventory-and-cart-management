@@ -6,6 +6,7 @@ import {
   CardContent,
   CardMedia,
   Grid,
+  Skeleton,
   Typography,
 } from "@mui/material";
 import { setHomeScreen } from "../services/headerActions/headerActionsSlice";
@@ -52,85 +53,112 @@ const ProductList = ({ displayProducts }: { displayProducts: Product[] }) => {
               justifyContent: "space-between",
             }}
           >
-            <CardMedia
-              component="img"
-              image={product.image}
-              alt={product.title}
-              sx={{
-                objectFit: "contain",
-                height: 200,
-                background: "#f9f9f9",
-              }}
-            />
-            <CardContent sx={{ flexGrow: 1 }}>
-              <Typography
-                gutterBottom
-                variant="h6"
-                component="div"
+            {product ? (
+              <CardMedia
+                component="img"
+                image={product.image}
+                alt={product.title}
                 sx={{
-                  fontSize: 18,
-                  fontWeight: 600,
+                  objectFit: "contain",
+                  height: 200,
+                  background: "#f9f9f9",
                 }}
-              >
-                {product.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                {product.category}
-              </Typography>
-              <Typography
-                variant="body1"
-                color="primary"
-                sx={{ fontWeight: 700 }}
-              >
-                ${product.price.toFixed(2)}
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
-                {Array.from({ length: 5 }).map((_, i) =>
-                  i < Math.round(product.rating?.rate ?? 0) ? (
-                    <StarIcon key={i} sx={{ color: "#FFD700", fontSize: 20 }} />
-                  ) : (
-                    <StarBorderIcon
-                      key={i}
-                      sx={{ color: "#FFD700", fontSize: 20 }}
-                    />
-                  )
-                )}
+              />
+            ) : (
+              <Skeleton variant="rectangular" width={210} height={118} />
+            )}
+            {product ? (
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography
+                  gutterBottom
+                  variant="h6"
+                  component="div"
+                  sx={{
+                    fontSize: 18,
+                    fontWeight: 600,
+                  }}
+                >
+                  {product.title}
+                </Typography>
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ ml: 1 }}
+                  sx={{ mb: 1 }}
                 >
-                  {product.rating?.rate ?? ""} ({product.rating?.count ?? 0}{" "}
-                  reviews)
+                  {product.category}
                 </Typography>
-              </Box>
-            </CardContent>
-            <CardActions
-              className="flex flex-row items-center justify-between w-full gap-2"
-              style={{ justifyContent: "space-between" }}
-            >
-              <div
-                className="flex flex-row items-center gap-2"
-                style={{ display: "flex" }}
+                <Typography
+                  variant="body1"
+                  color="primary"
+                  sx={{ fontWeight: 700 }}
+                >
+                  ${product.price.toFixed(2)}
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                  {Array.from({ length: 5 }).map((_, i) =>
+                    i < Math.round(product.rating?.rate ?? 0) ? (
+                      <StarIcon
+                        key={i}
+                        sx={{ color: "#FFD700", fontSize: 20 }}
+                      />
+                    ) : (
+                      <StarBorderIcon
+                        key={i}
+                        sx={{ color: "#FFD700", fontSize: 20 }}
+                      />
+                    )
+                  )}
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ ml: 1 }}
+                  >
+                    {product.rating?.rate ?? ""} ({product.rating?.count ?? 0}{" "}
+                    reviews)
+                  </Typography>
+                </Box>
+              </CardContent>
+            ) : (
+              <Skeleton
+                sx={{ height: 190 }}
+                animation="wave"
+                variant="rectangular"
+              />
+            )}
+            {product ? (
+              <CardActions
+                className="flex flex-row items-center justify-between w-full gap-2"
+                style={{ justifyContent: "space-between" }}
               >
-                <Button onClick={() => getProductCount(product)}>
-                  {getActionButton(product)}
+                <div
+                  className="flex flex-row items-center gap-2"
+                  style={{ display: "flex" }}
+                >
+                  <Button onClick={() => getProductCount(product)}>
+                    {getActionButton(product)}
+                  </Button>
+                </div>
+                <Button
+                  component={Link}
+                  to={`/productDetails/${product.id}`}
+                  size="small"
+                  variant="contained"
+                  className="ml-auto"
+                  onClick={() => {
+                    dispatch(setHomeScreen(false));
+                    dispatch(getProductById(product.id));
+                  }}
+                >
+                  View Details
                 </Button>
-              </div>
-              <Button
-                component={Link}
-                to={`/productDetails/${product.id}`}
-                size="small"
-                variant="contained"
-                className="ml-auto"
-                onClick={() => {
-                  dispatch(setHomeScreen(false));
-                  dispatch(getProductById(product.id));
-                }}
-              >
-                View Details
-              </Button>
-            </CardActions>
+              </CardActions>
+            ) : (
+              <Skeleton
+                sx={{ height: 190 }}
+                animation="wave"
+                variant="rectangular"
+              />
+            )}
           </Card>
         </Grid>
       ))}

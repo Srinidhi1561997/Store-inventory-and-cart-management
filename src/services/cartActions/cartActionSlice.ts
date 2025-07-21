@@ -31,7 +31,7 @@ const cartSlice = createSlice({
         (item) => item.id === action.payload.id
       );
       if (existingItem) {
-        existingItem.quantity! += 1;
+        existingItem.quantity += 1;
         existingItem.total = (existingItem.quantity + 1) * existingItem.price;
       } else {
         state.cartItems.push({
@@ -69,13 +69,6 @@ const cartSlice = createSlice({
     removeOrder: (state, action: PayloadAction<number>) => {
       state.orderItems = state.orderItems.filter(
         (item) => item.id !== action.payload
-      );
-      // state.orderItems.push(...removedItems);
-      console.log(
-        "items after deleted",
-        action.payload,
-        // ...removedItems,
-        state.orderItems
       );
     },
     clearOrder: (state) => {

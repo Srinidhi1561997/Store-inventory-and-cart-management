@@ -82,3 +82,18 @@ export const getStatusColor = (status: string) => {
       return "default";
   }
 };
+
+export const loginUserData = [
+  {
+    userName: "user1",
+    password: "Password@123",
+  },
+  {
+    userName: "user2",
+    password: "Password@456",
+  },
+  {
+    userName: "user3",
+    password: "Password@789",
+  },
+];

@@ -10,21 +10,7 @@ import {
   setPassword,
   setUsername,
 } from "../services/login/loginSlice";
-
-const loginData = [
-  {
-    userName: "user1",
-    password: "Password@123",
-  },
-  {
-    userName: "user2",
-    password: "Password@456",
-  },
-  {
-    userName: "user3",
-    password: "Password@789",
-  },
-];
+import { loginUserData } from "../utils/dataUtils";
 
 const useStyles = createUseStyles({
   container: {
@@ -111,7 +97,7 @@ const Login = () => {
         .matches(/[@$!%*#?&]/, "Must contain a special character"),
     }),
     onSubmit: (values) => {
-      const user = loginData.find(
+      const user = loginUserData.find(
         (user) =>
           user.userName === values.userName && user.password === values.password
       );

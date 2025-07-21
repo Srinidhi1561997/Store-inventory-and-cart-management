@@ -44,7 +44,6 @@ const useStyles = createUseStyles({
     alignItems: "center",
     justifyContent: "space-between",
     flexWrap: "wrap",
-    // gap: 16,
   },
   priceSection: {
     display: "flex",
@@ -136,7 +135,7 @@ const ProductDetails: React.FC = () => {
     return getQuantityById({ id, cartItems }) | 0;
   };
   return (
-    <>
+    <div>
       <ProductHeader />
       <Box className={classes.container}>
         <Card>
@@ -237,7 +236,7 @@ const ProductDetails: React.FC = () => {
         onSubmit={handleSubmit}
       />
       <FeedbackPopup open={isFeedBack} onClose={() => setIsFeedBack(false)} />
-    </>
+    </div>
   );
 };
 

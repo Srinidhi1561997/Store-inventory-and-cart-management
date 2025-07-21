@@ -1,7 +1,6 @@
 import React from "react";
 import ProductHeader from "../components/Header";
 import {
-  Box,
   Card,
   CardMedia,
   CardContent,
@@ -77,7 +76,7 @@ const Cart: React.FC = () => {
   const handleCheckout = () => {
     dispatch(createOrder());
     dispatch(clearCart());
-    navigate("/products"); // Change path if your product listing is different (e.g., "/products")
+    navigate("/products");
   };
 
   return (
@@ -103,9 +102,7 @@ const Cart: React.FC = () => {
                   <Typography variant="body2" color="text.secondary">
                     {item.category}
                   </Typography>
-                  <Typography variant="body1">
-                    ${item.price.toFixed(2)}
-                  </Typography>
+                  <Typography variant="body1">${item.price}</Typography>
                   <Typography variant="body2">
                     Quantity: {item.quantity}
                   </Typography>
@@ -132,7 +129,7 @@ const Cart: React.FC = () => {
             <Divider sx={{ my: 2 }} />
 
             <Typography variant="h6" className={classes.totalText}>
-              Total: ${totalPrice.toFixed(2)}
+              Total: ${totalPrice}
             </Typography>
 
             <div className={classes.actions}>

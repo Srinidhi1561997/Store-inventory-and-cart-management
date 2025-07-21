@@ -77,7 +77,7 @@ const Products: React.FC = () => {
     };
   }, [dispatch]);
 
-  if (displayProducts.length < 1 && searchText.length > 0) {
+  if (displayProducts.length < 1) {
     return (
       <>
         <ProductHeader />
@@ -87,13 +87,13 @@ const Products: React.FC = () => {
     );
   }
   return (
-    <>
+    <div>
       <ProductHeader />
       <Box sx={{ p: 4 }} className="bg-gray-100 min-h-screen">
         <ProductList displayProducts={displayProducts} />
       </Box>
       <FloatingFilterDrawer />
-    </>
+    </div>
   );
 };
 
