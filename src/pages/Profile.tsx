@@ -15,9 +15,7 @@ import {
   CardMedia,
 } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { setLoginStatus } from "../services/login/loginSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { setHomeScreen } from "../services/headerActions/headerActionsSlice";
 import type { RootState } from "../store";
 import { useNavigate } from "react-router-dom";
 import ProductHeader from "../components/Header";
@@ -46,7 +44,7 @@ export interface UserProfileData {
 
 const useStyles = createUseStyles({
   container: {
-    paddingTop: 48, // py: 6
+    paddingTop: 48,
   },
   paper: {
     padding: 32,
@@ -56,7 +54,7 @@ const useStyles = createUseStyles({
     width: 64,
     height: 64,
     fontSize: 28,
-    backgroundColor: "#1976d2", // fallback for primary.main
+    backgroundColor: "#1976d2",
   },
   signOutBtn: {
     display: "flex",
@@ -110,7 +108,6 @@ const UserProfile: React.FC = () => {
   const { orderItems } = useSelector((state: RootState) => state.cart);
   const dummyUser = {} as UserProfileData;
   useEffect(() => {
-    // Simulate fetch
     const indexOfA = username.indexOf("@");
     Object.assign(dummyUser, {
       username: username.slice(0, indexOfA),

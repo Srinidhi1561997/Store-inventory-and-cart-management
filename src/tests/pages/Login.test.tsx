@@ -27,7 +27,7 @@ const mockNavigate = jest.fn();
 jest.spyOn(router, "useNavigate").mockReturnValue(mockNavigate);
 
 // Mock user data
-jest.mock("../utils/dataUtils", () => ({
+jest.mock("../../utils/dataUtils", () => ({
   loginUserData: [{ userName: "testUser", password: "Password@123" }],
 }));
 

@@ -17,10 +17,23 @@ import { setHomeScreen } from "../services/headerActions/headerActionsSlice";
 import type { RootState } from "../store";
 import { useDispatch, useSelector } from "react-redux";
 import SignOutModal from "./Modal";
+import { createUseStyles } from "react-jss";
 
 const drawerWidth = 240;
 
+const useStyles = createUseStyles({
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+    "& .MuiDrawer-paper": {
+      width: drawerWidth,
+      boxSizing: "border-box",
+    },
+  },
+});
+
 const SidebarList: React.FC = () => {
+  const classes = useStyles();
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -59,14 +72,7 @@ const SidebarList: React.FC = () => {
     setIsModal(false);
   };
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: "border-box" },
-      }}
-    >
+    <Drawer variant="permanent" className={classes.drawer}>
       <List>
         {menuItems
           .filter((item) => item.path !== location.pathname)

@@ -25,7 +25,7 @@ const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    // Add item to cart or increase quantity
+  
     addToCart: (state, action: PayloadAction<Product>) => {
       const existingItem = state.cartItems.find(
         (item) => item.id === action.payload.id
@@ -44,7 +44,6 @@ const cartSlice = createSlice({
       }
     },
 
-    // Remove item from cart completely
     removeFromCart: (state, action: PayloadAction<number>) => {
       state.cartItems = state.cartItems
         .map((item) =>

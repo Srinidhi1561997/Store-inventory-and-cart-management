@@ -22,8 +22,61 @@ import { getQuantityById } from "../utils/dataUtils";
 import { useNavigate } from "react-router-dom";
 import { addToCart } from "../services/cartActions/cartActionSlice";
 import { Link } from "react-router-dom";
+import { createUseStyles } from "react-jss";
 
+const useStyles = createUseStyles({
+  gridItem: {
+    display: "flex",
+  },
+  card: {
+    width: 300,
+    minHeight: 400,
+    display: "flex",
+    flexDirection: "column",
+    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+    justifyContent: "space-between",
+  },
+  image: {
+    objectFit: "contain",
+    height: 200,
+    background: "#f9f9f9",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 600,
+  },
+  category: {
+    marginBottom: 8,
+  },
+  price: {
+    fontWeight: 700,
+    color: "#1976d2",
+  },
+  ratingBox: {
+    display: "flex",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  ratingText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: "#666",
+  },
+  actions: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    padding: "0 8px 8px 8px",
+  },
+  actionLeft: {
+    display: "flex",
+    gap: 8,
+    alignItems: "center",
+  },
+});
 const ProductList = ({ displayProducts }: { displayProducts: Product[] }) => {
+  const classes = useStyles();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { cartItems } = useSelector((state: RootState) => state.cart);
@@ -40,61 +93,45 @@ const ProductList = ({ displayProducts }: { displayProducts: Product[] }) => {
       : "Add to cart";
   };
   return (
-    <Grid container spacing={4} justifyContent="center">
+   <Grid container spacing={4} justifyContent="center">
       {displayProducts.map((product) => (
-        <Grid key={product.id} sx={{ display: "flex" }}>
-          <Card
-            sx={{
-              width: 300,
-              minHeight: 400,
-              display: "flex",
-              flexDirection: "column",
-              boxShadow: 3,
-              justifyContent: "space-between",
-            }}
-          >
+        <Grid key={product.id} item className={classes.gridItem}>
+          <Card className={classes.card}>
             {product ? (
               <CardMedia
                 component="img"
                 image={product.image}
                 alt={product.title}
-                sx={{
-                  objectFit: "contain",
-                  height: 200,
-                  background: "#f9f9f9",
-                }}
+                className={classes.image}
               />
             ) : (
               <Skeleton variant="rectangular" width={210} height={118} />
             )}
+
             {product ? (
-              <CardContent sx={{ flexGrow: 1 }}>
+              <CardContent>
                 <Typography
                   gutterBottom
                   variant="h6"
                   component="div"
-                  sx={{
-                    fontSize: 18,
-                    fontWeight: 600,
-                  }}
+                  className={classes.title}
                 >
                   {product.title}
                 </Typography>
                 <Typography
                   variant="body2"
                   color="text.secondary"
-                  sx={{ mb: 1 }}
+                  className={classes.category}
                 >
                   {product.category}
                 </Typography>
                 <Typography
                   variant="body1"
-                  color="primary"
-                  sx={{ fontWeight: 700 }}
+                  className={classes.price}
                 >
                   ${product.price.toFixed(2)}
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", mt: 1 }}>
+                <Box className={classes.ratingBox}>
                   {Array.from({ length: 5 }).map((_, i) =>
                     i < Math.round(product.rating?.rate ?? 0) ? (
                       <StarIcon
@@ -108,32 +145,18 @@ const ProductList = ({ displayProducts }: { displayProducts: Product[] }) => {
                       />
                     )
                   )}
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ ml: 1 }}
-                  >
-                    {product.rating?.rate ?? ""} ({product.rating?.count ?? 0}{" "}
-                    reviews)
+                  <Typography className={classes.ratingText}>
+                    {product.rating?.rate ?? ""} ({product.rating?.count ?? 0} reviews)
                   </Typography>
                 </Box>
               </CardContent>
             ) : (
-              <Skeleton
-                sx={{ height: 190 }}
-                animation="wave"
-                variant="rectangular"
-              />
+              <Skeleton sx={{ height: 190 }} animation="wave" variant="rectangular" />
             )}
+
             {product ? (
-              <CardActions
-                className="flex flex-row items-center justify-between w-full gap-2"
-                style={{ justifyContent: "space-between" }}
-              >
-                <div
-                  className="flex flex-row items-center gap-2"
-                  style={{ display: "flex" }}
-                >
+              <CardActions className={classes.actions}>
+                <div className={classes.actionLeft}>
                   <Button onClick={() => getProductCount(product)}>
                     {getActionButton(product)}
                   </Button>
@@ -143,7 +166,6 @@ const ProductList = ({ displayProducts }: { displayProducts: Product[] }) => {
                   to={`/productDetails/${product.id}`}
                   size="small"
                   variant="contained"
-                  className="ml-auto"
                   onClick={() => {
                     dispatch(setHomeScreen(false));
                     dispatch(getProductById(product.id));
@@ -153,11 +175,7 @@ const ProductList = ({ displayProducts }: { displayProducts: Product[] }) => {
                 </Button>
               </CardActions>
             ) : (
-              <Skeleton
-                sx={{ height: 190 }}
-                animation="wave"
-                variant="rectangular"
-              />
+              <Skeleton sx={{ height: 190 }} animation="wave" variant="rectangular" />
             )}
           </Card>
         </Grid>

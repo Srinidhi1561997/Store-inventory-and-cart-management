@@ -55,7 +55,7 @@ export const filterByCategory = ({
     } else if (filteredText === "clear" || filteredText === "") {
       return true;
     }
-    return false;
+    return true;
   });
 };
 
