@@ -64,6 +64,7 @@ describe("Login Page", () => {
   fireEvent.blur(screen.getByLabelText("Username:"));
   fireEvent.blur(screen.getByLabelText("Password:"));
   fireEvent.click(screen.getByRole("button", { name: /login/i }));
+  console.log('toBeInTheDocument' in expect);
   await waitFor(() => {
     expect(screen.getByText(/Username is required/i)).toBeInTheDocument();
     expect(screen.getByText(/Password is required/i)).toBeInTheDocument();
